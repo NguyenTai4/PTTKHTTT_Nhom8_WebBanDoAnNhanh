@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -191,8 +192,18 @@
                 </a>
                 <h2>Chào mừng bạn trở lại!</h2>
             </div>
-            
-            <form action="${pageContext.request.contextPath}/home" method="POST">
+            <c:if test="${not empty errorMessage}">
+                <div style="color: #ff5e36; text-align: center; margin-bottom: 20px; font-size: 0.95rem; font-weight: 500; background: rgba(255, 94, 54, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 94, 54, 0.2);">
+                    <i class="fa-solid fa-circle-exclamation"></i> ${errorMessage}
+                </div>
+            </c:if>
+
+            <c:if test="${not empty successMessage}">
+                <div style="color: #4cd964; text-align: center; margin-bottom: 20px; font-size: 0.95rem; font-weight: 500; background: rgba(76, 217, 100, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(76, 217, 100, 0.2);">
+                    <i class="fa-solid fa-circle-check"></i> ${successMessage}
+                </div>
+            </c:if>
+            <form action="${pageContext.request.contextPath}/login" method="POST">
                 <div class="form-group">
                     <label for="username">Tên đăng nhập / Email</label>
                     <div class="input-wrapper">
@@ -215,8 +226,21 @@
                     </label>
                     <a href="#" class="forgot-link">Quên mật khẩu?</a>
                 </div>
-                
+
                 <button type="submit" class="btn-primary btn-auth">Đăng Nhập</button>
+
+                <div style="text-align: center; margin: 15px 0; color: var(--text-secondary); font-size: 0.9rem;">
+                    <span>HOẶC</span>
+                </div>
+
+                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile&redirect_uri=http://localhost:8080${pageContext.request.contextPath}/login-google&response_type=code&client_id=797549044266-n1h5cl113p3s5pjgm9krg4e1343o16lc.apps.googleusercontent.com"
+                   class="btn-secondary"
+                   style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: var(--text-primary); transition: var(--transition-fast);"
+                   onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 18px; height: 18px;">
+                    Đăng nhập bằng Google
+                </a>
             </form>
             
             <div class="auth-footer">
