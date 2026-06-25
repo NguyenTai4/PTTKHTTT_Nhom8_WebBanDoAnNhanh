@@ -8,7 +8,6 @@ public class User {
     private String password;
     private String fullname;
 
-    // Constructors
     public User() {}
 
     public User(String username, String email, String phone, String password, String fullname) {
@@ -19,7 +18,6 @@ public class User {
         this.fullname = fullname;
     }
 
-    // Getters and Setters (lược bỏ bớt cho gọn, bạn generate thêm nhé)
     public int getId() {return id;}
     public void setId(int id) {this.id = id;}
     public String getUsername() { return username; }
