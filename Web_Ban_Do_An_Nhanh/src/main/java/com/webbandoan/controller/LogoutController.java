@@ -16,7 +16,6 @@ public class LogoutController extends HttpServlet {
         if (session != null) {
             session.invalidate(); // Hủy toàn bộ session hiện tại (xóa loggedUser)
         }
-        // Đá người dùng về lại trang chủ sau khi hủy session
         response.sendRedirect(request.getContextPath() + "/home");
     }
 }

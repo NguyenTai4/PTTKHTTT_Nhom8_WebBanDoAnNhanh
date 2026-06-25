@@ -9,7 +9,6 @@ public class GooglePojo {
     private String family_name;
     private String picture;
 
-    // Getters and Setters
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getName() { return name; }

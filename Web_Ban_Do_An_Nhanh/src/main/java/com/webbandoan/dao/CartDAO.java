@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CartDAO {
-    // Hàm phụ: Lấy Cart ID của User (nếu chưa có thì tạo mới)
     public int getOrCreateCartId(int userId) {
         try (Connection conn = DBContext.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("SELECT id FROM carts WHERE user_id = ?");
@@ -14,7 +13,6 @@ public class CartDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("id");
 
-            // Tạo mới giỏ hàng
             PreparedStatement psInsert = conn.prepareStatement("INSERT INTO carts (user_id) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
             psInsert.setInt(1, userId);
             psInsert.executeUpdate();
@@ -24,7 +22,6 @@ public class CartDAO {
         return -1;
     }
 
-    // 1. fetchUserCart() - Lấy danh sách món trong giỏ
     public List<CartItem> fetchUserCart(int cartId) {
         List<CartItem> list = new ArrayList<>();
         String query = "SELECT ci.food_id, ci.quantity, f.name, f.price, f.image_url, c.name as category_name " +
@@ -50,8 +47,6 @@ public class CartDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
-
-    // 2. checkItemExists() & addNewItem() / increaseQuantity()
     public void addOrUpdateItem(int cartId, int foodId, int qtyToAdd) {
         try (Connection conn = DBContext.getConnection()) {
             PreparedStatement psCheck = conn.prepareStatement("SELECT quantity FROM cart_items WHERE cart_id = ? AND food_id = ?");
@@ -59,12 +54,10 @@ public class CartDAO {
             ResultSet rs = psCheck.executeQuery();
 
             if (rs.next()) {
-                // Đã tồn tại -> increaseQuantity()
                 PreparedStatement psUpdate = conn.prepareStatement("UPDATE cart_items SET quantity = quantity + ? WHERE cart_id = ? AND food_id = ?");
                 psUpdate.setInt(1, qtyToAdd); psUpdate.setInt(2, cartId); psUpdate.setInt(3, foodId);
                 psUpdate.executeUpdate();
             } else {
-                // Chưa tồn tại -> addNewItem()
                 PreparedStatement psInsert = conn.prepareStatement("INSERT INTO cart_items (cart_id, food_id, quantity) VALUES (?, ?, ?)");
                 psInsert.setInt(1, cartId); psInsert.setInt(2, foodId); psInsert.setInt(3, qtyToAdd);
                 psInsert.executeUpdate();
@@ -72,7 +65,6 @@ public class CartDAO {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // 3. updateQuantity (Dành cho nút +/- trong giỏ)
     public void updateQuantity(int cartId, int foodId, int newQty) {
         if (newQty <= 0) { deleteItem(cartId, foodId); return; }
         String query = "UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND food_id = ?";
@@ -82,7 +74,6 @@ public class CartDAO {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // 4. deleteItem()
     public void deleteItem(int cartId, int foodId) {
         String query = "DELETE FROM cart_items WHERE cart_id = ? AND food_id = ?";
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {

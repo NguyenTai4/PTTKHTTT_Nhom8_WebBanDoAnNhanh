@@ -212,7 +212,6 @@
                 </span>
             </button>
 
-            <%-- ĐỒNG BỘ HIỂN THỊ TRẠNG THÁI ĐĂNG NHẬP --%>
             <c:choose>
                 <c:when test="${not empty sessionScope.loggedUser}">
                     <div class="user-logged-info" style="display: flex; align-items: center; gap: 12px; background: rgba(255, 94, 54, 0.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255, 94, 54, 0.2);">
@@ -288,7 +287,6 @@
 <script src="${pageContext.request.contextPath}/static/js/main.js"></script>
 
 <script>
-    // XỬ LÝ GỬI FORM NGẦM QUA AJAX FETCH API
     function ajaxAddToCart(event, formElement) {
         event.preventDefault();
 
@@ -315,7 +313,6 @@
                 }
 
                 if (response.ok) {
-                    // Đọc dữ liệu số lượng trả về từ Server dạng Text
                     return response.text();
                 } else {
                     throw new Error("Error");
@@ -323,10 +320,9 @@
             })
             .then(totalQty => {
                 if (totalQty) {
-                    // CẬP NHẬT SỐ LƯỢNG MỚI LÊN BADGE HEADER NGAY LẬP TỨC
                     document.getElementById('cart-badge-count').innerText = totalQty;
 
-                    showSuccessToast(); // Hiện popup thông báo thành công
+                    showSuccessToast();
                 }
             })
             .catch(error => {
@@ -335,7 +331,6 @@
             });
     }
 
-    // ĐIỀU KHIỂN POPUP HIỂN THỊ TRONG 3 GIÂY
     function showSuccessToast() {
         const toast = document.getElementById('cart-toast');
         toast.classList.add('show');

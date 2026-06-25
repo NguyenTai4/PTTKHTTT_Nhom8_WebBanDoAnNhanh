@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<%-- If the request comes directly to index.jsp without going through HomeServlet, redirect to /home to load data --%>
 <c:if test="${empty foodList}">
     <c:redirect url="/home"/>
 </c:if>
@@ -84,7 +83,6 @@
                 </span>
             </button>
 
-            <%-- KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP --%>
             <c:choose>
                 <c:when test="${not empty sessionScope.loggedUser}">
                     <div class="user-logged-info" style="display: flex; align-items: center; gap: 12px; background: rgba(255, 94, 54, 0.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255, 94, 54, 0.2);">
@@ -235,7 +233,6 @@
 <script src="${pageContext.request.contextPath}/static/js/main.js"></script>
 
 <script>
-    // HÀM XỬ LÝ GỬI DỮ LIỆU ĐẾN CART CONTROLLER QUA AJAX
     function ajaxAddToCart(event, formElement) {
         event.preventDefault();
 
@@ -262,7 +259,6 @@
                 }
 
                 if (response.ok) {
-                    // Đọc dữ liệu số lượng trả về từ Server dạng Text
                     return response.text();
                 } else {
                     throw new Error("Error");
@@ -270,10 +266,9 @@
             })
             .then(totalQty => {
                 if (totalQty) {
-                    // CẬP NHẬT SỐ LƯỢNG MỚI LÊN BADGE HEADER NGAY LẬP TỨC
                     document.getElementById('cart-badge-count').innerText = totalQty;
 
-                    showSuccessToast(); // Hiện popup thông báo thành công
+                    showSuccessToast();
                 }
             })
             .catch(error => {
@@ -281,13 +276,10 @@
                 alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
             });
     }
-
-    // HÀM ĐIỀU KHIỂN HIỆN/ẨN POPUP TOAST
     function showSuccessToast() {
         const toast = document.getElementById('cart-toast');
-        toast.classList.add('show'); // Thêm class để kích hoạt CSS Animation trượt lên công phu
+        toast.classList.add('show');
 
-        // Tự động ẩn đi sau 3 giây
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);

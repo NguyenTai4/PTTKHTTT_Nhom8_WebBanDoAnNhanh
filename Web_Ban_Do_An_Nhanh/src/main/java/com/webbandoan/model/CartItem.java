@@ -1,7 +1,5 @@
 package com.webbandoan.model;
 
-import com.webbandoan.model.Food;
-
 public class CartItem {
     private int foodId;
     private int quantity;
