@@ -1,88 +1,75 @@
 package com.webbandoan.controller;
 
-import com.webbandoan.model.FoodItem;
+import com.webbandoan.dao.FoodDAO;
+import com.webbandoan.dao.CartDAO;      // Thêm import để làm việc với Giỏ hàng
+import com.webbandoan.model.Food;
+import com.webbandoan.model.CartItem;  // Thêm import Model dữ liệu giỏ hàng
+import com.webbandoan.model.User;      // Thêm import Model User
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;  // Thêm import Quản lý Session
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Controller Servlet for the home page listing fast-food items.
+ * Controller Servlet cho trang chủ - Lấy dữ liệu thức ăn và số lượng giỏ hàng từ Database
  */
 @WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    // Khởi tạo các lớp DAO để giao tiếp với DB
+    private FoodDAO foodDAO = new FoodDAO();
+    private CartDAO cartDAO = new CartDAO(); // THÊM: Khởi tạo CartDAO
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // Prepare list of mock fast-food items
-        List<FoodItem> foodList = new ArrayList<>();
-        
-        foodList.add(new FoodItem(
-                1, 
-                "Double Cheese Burger", 
-                "Flame-grilled double beef patty, melted cheddar cheese, lettuce, tomatoes, and signature sauce.", 
-                5.99, 
-                "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80", 
-                "Burgers"
-        ));
-        
-        foodList.add(new FoodItem(
-                2, 
-                "Pepperoni Premium Pizza", 
-                "Crispy thin crust topped with rich marinara sauce, mozzarella cheese, and loaded with spicy pepperoni.", 
-                8.99, 
-                "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=80", 
-                "Pizzas"
-        ));
-        
-        foodList.add(new FoodItem(
-                3, 
-                "Crispy Chicken Wings", 
-                "Golden-fried crunchy chicken wings tossed in your choice of sweet and spicy BBQ or hot buffalo sauce.", 
-                4.99, 
-                "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=500&q=80", 
-                "Sides"
-        ));
 
-        foodList.add(new FoodItem(
-                4, 
-                "Fresh Strawberry Milkshake", 
-                "Thick and creamy vanilla milkshake blended with fresh strawberries and topped with whipped cream.", 
-                2.99, 
-                "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=500&q=80", 
-                "Drinks"
-        ));
+        // =========================================================================
+        // LOGIC THÊM: ĐỒNG BỘ SỐ LƯỢNG SẢN PHẨM TRONG GIỎ HÀNG LÊN HEADER BADGE
+        // =========================================================================
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("loggedUser");
 
-        foodList.add(new FoodItem(
-                5, 
-                "Loaded Cheesy Fries", 
-                "Crispy golden fries smothered in melted cheddar cheese sauce, crispy bacon bits, and chopped chives.", 
-                3.49, 
-                "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=500&q=80", 
-                "Sides"
-        ));
+        if (user != null) {
+            try {
+                // Lấy hoặc tạo mới ID giỏ hàng dựa trên ID của User đang đăng nhập
+                int cartId = cartDAO.getOrCreateCartId(user.getId());
 
-        foodList.add(new FoodItem(
-                6, 
-                "Fudge Chocolate Brownie", 
-                "Rich, warm chocolate brownie loaded with chocolate chips, served with a scoop of vanilla ice cream.", 
-                3.99, 
-                "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=80", 
-                "Desserts"
-        ));
+                // Lấy danh sách toàn bộ món ăn đang có trong giỏ hàng
+                List<CartItem> cartItems = cartDAO.fetchUserCart(cartId);
 
-        // Set list of food items to request scope
+                // Vòng lặp tính tổng số lượng (Cộng dồn quantity của từng món)
+                int totalQuantity = 0;
+                for (CartItem item : cartItems) {
+                    totalQuantity += item.getQuantity();
+                }
+
+                // Đẩy con số tổng này vào Session với tên "cartSize"
+                // Từ đó các trang index.jsp, detail.jsp chỉ cần dùng ${sessionScope.cartSize} để hiển thị
+                session.setAttribute("cartSize", totalQuantity);
+
+            } catch (Exception e) {
+                // Log lỗi ra màn hình Console của IDE nếu có lỗi truy vấn DB giỏ hàng
+                e.printStackTrace();
+            }
+        }
+
+        // =========================================================================
+        // LOGIC CŨ: LẤY DANH SÁCH MÓN ĂN VÀ ĐIỀU HƯỚNG TRANG
+        // =========================================================================
+        // 1. Gọi DAO để lấy toàn bộ danh sách món ăn từ Database
+        List<Food> foodList = foodDAO.getAllFoods();
+
+        // 2. Gắn danh sách vào request scope để JSP có thể đọc được
         request.setAttribute("foodList", foodList);
-        
-        // Forward request to index.jsp for rendering
+
+        // 3. Chuyển hướng về trang index.jsp để hiển thị
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 
