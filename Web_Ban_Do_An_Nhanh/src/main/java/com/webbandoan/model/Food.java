@@ -1,35 +1,13 @@
 package com.webbandoan.model;
 
-import java.io.Serializable;
-
-/**
- * Model class representing a fast-food item.
- */
-public class FoodItem implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class Food {
     private int id;
     private String name;
     private String description;
     private double price;
     private String imageUrl;
-    private String category;
+    private String categoryName;
 
-    // Default Constructor
-    public FoodItem() {
-    }
-
-    // Parameterized Constructor
-    public FoodItem(int id, String name, String description, double price, String imageUrl, String category) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imageUrl = imageUrl;
-        this.category = category;
-    }
-
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -70,11 +48,11 @@ public class FoodItem implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public String getCategory() {
-        return category;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
