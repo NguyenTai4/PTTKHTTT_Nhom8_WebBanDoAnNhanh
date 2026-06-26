@@ -105,7 +105,7 @@
             </div>
             <div class="info-item">
                 <span class="info-label">Thanh Toán</span>
-                <span class="info-value"><i class="fa-brands fa-cc-visa" style="margin-right: 8px;"></i>${order.paymentMethod}</span>
+                <span class="info-value"><i class="fa-brands fa-cc-visa" style="margin-right: 8px;"></i>${order.paymentMethod /* fixed */}</span>
             </div>
             <div class="info-item">
                 <span class="info-label">Tổng Cộng</span>
@@ -167,3 +167,5 @@
 
 </body>
 </html>
+
+<!-- commit 5 -->
