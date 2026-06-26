@@ -86,7 +86,8 @@
         </div>
 
         <!-- 9.14 Hiển thị thông báo lỗi (nếu có lỗi truy xuất dữ liệu) -->
-        <c:if test="${not empty error}">
+        <!-- error handling -->
+<c:if test="${not empty error}">
             <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
                 <i class="fa-solid fa-circle-exclamation"></i> ${error}
             </div>
@@ -151,3 +152,5 @@
 
 </body>
 </html>
+
+<!-- commit 4 -->
