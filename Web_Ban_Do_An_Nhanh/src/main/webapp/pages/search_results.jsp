@@ -163,7 +163,7 @@
         <div class="main-content">
             <!-- Lưới sản phẩm (10.9 Hiển thị DS SP mặc định / 10.15 Hiển thị DS SP phù hợp / 12.12 renderProductList) -->
             <c:if test="${not empty errorFilter}">
-                <!-- 10.17 Hiển thị thông báo Không tìm thấy -->
+                <!-- Filter clear btn -->
                 <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
                     <i class="fa-solid fa-circle-exclamation"></i> ${errorFilter}
                 </div>
@@ -344,3 +344,5 @@
 </script>
 </body>
 </html>
+
+<!-- commit 11 -->
