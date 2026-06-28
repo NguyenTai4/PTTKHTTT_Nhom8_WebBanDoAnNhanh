@@ -290,7 +290,7 @@
         }, 3000);
     }
 
-    /* integrated api */ function fetchSuggestions(partial) {
+    function fetchSuggestions(partial) {
         let box = document.getElementById("suggestionBox");
         if (!partial || partial.trim() === "") {
             box.style.display = "none";
@@ -336,4 +336,4 @@
 </script>
 </body>
 </html>
-<!-- commit 18 -->
+<!-- commit 19 -->
