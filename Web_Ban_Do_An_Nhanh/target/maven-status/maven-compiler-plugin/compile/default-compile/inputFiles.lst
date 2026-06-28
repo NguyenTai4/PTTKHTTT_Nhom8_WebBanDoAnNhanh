@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\SearchProductServlet.java
 D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\ProductDAO.java
 D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\utils\DBContext.java
@@ -21,3 +22,33 @@ D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban
 D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\AccountDAO.java
 D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\FoodDAO.java
 D:\Documents\Phan tich thiet ke HTTT\2026\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\Food.java
+=======
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\utils\DBContext.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\FoodDAO.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\CheckoutController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\RegisterController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\LoginGoogleController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\GooglePojo.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\LoginServlet.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\Food.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\DetailController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\OrderDAO.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\AccountDAO.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\filter\UTF8Filter.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\HomeServlet.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\CartDAO.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\Order.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\UserDAO.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\CartItem.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\CartController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\LogoutController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\OrderItem.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\Promotion.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\utils\EmailService.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\dao\PromotionDAO.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\model\User.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\RegisterServlet.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\LoginController.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\controller\ForgotPasswordServlet.java
+D:\For University\University\Year4Semester8\PTTKHTTT\PTTKHTTT_Nhom8_WebBanDoAnNhanh\Web_Ban_Do_An_Nhanh\src\main\java\com\webbandoan\utils\HashUtils.java
+>>>>>>> 276ebeeebda5f39c71f1f7d16669be6ea9cc9120
