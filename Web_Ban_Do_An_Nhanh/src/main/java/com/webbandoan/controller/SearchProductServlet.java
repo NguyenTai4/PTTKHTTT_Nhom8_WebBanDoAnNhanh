@@ -69,4 +69,3 @@ public class SearchProductServlet extends HttpServlet {
         request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
     }
 }
-// commit 16

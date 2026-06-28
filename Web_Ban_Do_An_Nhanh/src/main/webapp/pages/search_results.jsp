@@ -344,5 +344,3 @@
 </script>
 </body>
 </html>
-
-<!-- commit 20 -->
