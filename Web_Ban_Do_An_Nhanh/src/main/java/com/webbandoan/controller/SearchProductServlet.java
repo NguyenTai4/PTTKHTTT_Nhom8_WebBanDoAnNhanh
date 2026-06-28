@@ -18,7 +18,7 @@ public class SearchProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        String keyword = request.getParameter("keyword"); // base logic
+        String keyword = request.getParameter("keyword");
         
         if ("suggest".equals(action)) {
             if (keyword != null && !keyword.trim().isEmpty()) {
@@ -69,4 +69,4 @@ public class SearchProductServlet extends HttpServlet {
         request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
     }
 }
-// commit 14
+// commit 16
