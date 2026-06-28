@@ -30,7 +30,9 @@ public class SearchProductServlet extends HttpServlet {
         
         if ("suggest".equals(action)) {
             String partial = request.getParameter("partial");
+            // 12.2. getSuggestions(partial)
             if (partial != null && !partial.trim().isEmpty()) {
+                // 12.4. return nameList
                 List<String> suggestions = productDAO.findSuggestedNames(partial);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -40,6 +42,7 @@ public class SearchProductServlet extends HttpServlet {
                     if (i < suggestions.size() - 1) json.append(",");
                 }
                 json.append("]");
+                // 12.5. return suggestions
                 response.getWriter().write(json.toString());
             } else {
                 response.getWriter().write("[]");
@@ -51,6 +54,7 @@ public class SearchProductServlet extends HttpServlet {
         List<Product> products = null;
 
         if ("clear".equals(action)) {
+            // 10.5. getDefaultProducts()
             products = productDAO.queryDefaultProducts(page);
             totalPages = productDAO.getTotalPagesForDefault();
         } else if ("filter".equals(action)) {
@@ -67,24 +71,29 @@ public class SearchProductServlet extends HttpServlet {
             }
             
             // Limit 12 products per page (ITEMS_PER_PAGE in DAO)
+            // 10.11. filterProducts(criteria)
             int offset = (page - 1) * 12; 
             products = productDAO.queryProducts(category, minPrice, maxPrice, offset, 12);
             totalPages = productDAO.getTotalPagesForFilter(category, priceParam);
             
             if (products == null || products.isEmpty()) {
+                // 10.16. return emptyList
                 request.setAttribute("errorFilter", "Không tìm thấy sản phẩm phù hợp.");
             }
             request.setAttribute("category", category);
             request.setAttribute("price", priceParam);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
+            // 12.8. processSearch(keyword, page)
             products = productDAO.getProducts(keyword, page);
             totalPages = productDAO.getTotalPagesForSearch(keyword);
             request.setAttribute("keyword", keyword);
         } else {
+            // Truy cập mặc định tương đương clear
             products = productDAO.queryDefaultProducts(page);
             totalPages = productDAO.getTotalPagesForDefault();
         }
         
+        // 10.8. return products / 10.14. return filteredList / 12.10. return pageResult
         request.setAttribute("action", action);
         request.setAttribute("products", products);
         request.setAttribute("currentPage", page);
