@@ -2,7 +2,6 @@ package com.webbandoan.filter;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
-import java.io.IOException;
 
 /**
  * Filter to enforce UTF-8 character encoding for all requests and responses.
