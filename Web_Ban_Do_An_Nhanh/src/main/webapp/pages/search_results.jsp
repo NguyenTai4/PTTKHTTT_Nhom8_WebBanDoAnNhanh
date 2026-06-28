@@ -13,16 +13,20 @@
         .product-card img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 4px; }
         .price { color: #e74c3c; font-weight: bold; font-size: 1.2em; }
         .filter-form { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+        .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 20px; }
+        .page-link { padding: 8px 12px; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 4px; }
+        .page-link.active { background: var(--color-orange); color: white; border-color: var(--color-orange); }
     </style>
 </head>
 <body>
     <jsp:include page="/views/layout/header.jsp" />
 
-    <!-- 10.2. Hiển thị trang sản phẩm -->
+    <!-- 10.2. Hiển thị trang sản phẩm / 12.11. return pageResult -->
     <div class="search-container">
         <h2>Danh sách sản phẩm</h2>
         
         <form action="${pageContext.request.contextPath}/search" method="get" class="filter-form">
+            <input type="hidden" name="page" value="1">
             <input type="text" name="q" value="${query}" placeholder="Nhập từ khóa lọc..." style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 300px;">
             <button type="submit" class="btn btn-primary">Áp dụng</button>
             <a href="${pageContext.request.contextPath}/search?action=clear" class="btn btn-secondary">Xóa lọc</a>
@@ -30,17 +34,18 @@
 
         <c:choose>
             <c:when test="${emptyList}">
-                <!-- 10.17. Hiển thị thông báo "Không tìm thấy" -->
-                <p>Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</p>
+                <!-- 10.17. Hiển thị thông báo "Không tìm thấy" / 12.13. return emptyResult -->
+                <!-- 12.14. renderErrorMsg() -->
+                <p>Không tìm thấy sản phẩm nào phù hợp với từ khóa/bộ lọc.</p>
             </c:when>
             <c:otherwise>
                 <div class="product-grid">
                     <c:choose>
                         <c:when test="${not empty query}">
-                            <!-- 10.15. Hiển thị DS SP phù hợp -->
+                            <!-- 10.15. Hiển thị DS SP phù hợp / 12.12. renderProductList(pageResult) -->
                         </c:when>
                         <c:otherwise>
-                            <!-- 10.9. Hiển thị DS SP mặc định -->
+                            <!-- 10.9. Hiển thị DS SP mặc định / 12.12. renderProductList(pageResult) -->
                         </c:otherwise>
                     </c:choose>
                     
@@ -53,6 +58,18 @@
                             <button class="btn btn-primary"><i class="fas fa-cart-plus"></i> Thêm vào giỏ</button>
                         </div>
                     </c:forEach>
+                </div>
+
+                <!-- Phân trang -->
+                <div class="pagination">
+                    <c:set var="pageNum" value="${not empty currentPage ? currentPage : 1}" />
+                    <c:if test="${pageNum > 1}">
+                        <a href="?q=${query}&page=${pageNum - 1}" class="page-link">&laquo; Trước</a>
+                    </c:if>
+                    
+                    <a href="?q=${query}&page=${pageNum}" class="page-link active">${pageNum}</a>
+                    
+                    <a href="?q=${query}&page=${pageNum + 1}" class="page-link">Sau &raquo;</a>
                 </div>
             </c:otherwise>
         </c:choose>
