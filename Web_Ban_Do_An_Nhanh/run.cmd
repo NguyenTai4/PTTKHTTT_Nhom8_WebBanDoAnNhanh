@@ -22,4 +22,11 @@ if not exist "%MAVEN_BIN%" (
 echo =========================================================
 echo [BiteSync] Starting Jetty Server on http://localhost:8080/
 echo =========================================================
+
+:: ==========================================
+:: CAU HINH BIEN MOI TRUONG GMAIL SMTP TAI DAY
+:: ==========================================
+set "BITESYNC_EMAIL=huutai0977@gmail.com"
+set "BITESYNC_APP_PASSWORD=izxfrxnjxqfweila"
+
 "%MAVEN_BIN%" jetty:run

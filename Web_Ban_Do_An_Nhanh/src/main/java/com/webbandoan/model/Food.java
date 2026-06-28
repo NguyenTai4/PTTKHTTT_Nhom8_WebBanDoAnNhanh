@@ -55,4 +55,14 @@ public class Food {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
+
+    private int stock = 20;
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
 }

@@ -124,7 +124,7 @@
 <section class="search-page">
     <div class="container search-layout">
         <!-- 10.1 Truy cập trang sản phẩm & 10.2 Hiển thị trang sản phẩm -->
-        <div class="sidebar" style="display:none;">
+        <div class="sidebar">
             <h3><i class="fa-solid fa-filter"></i> Lọc Sản Phẩm</h3>
             <!-- 10.3 Tương tác với bộ lọc -->
             <form action="${pageContext.request.contextPath}/search" method="GET">
@@ -222,7 +222,17 @@
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
                     <c:forEach begin="1" end="${totalPages}" var="i">
-                        <a href="?keyword=${keyword}&page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                        <c:choose>
+                            <c:when test="${action == 'filter'}">
+                                <a href="?action=filter&category=${category}&price=${price}&page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                            </c:when>
+                            <c:when test="${not empty keyword}">
+                                <a href="?keyword=${keyword}&page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="?page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                            </c:otherwise>
+                        </c:choose>
                     </c:forEach>
                 </div>
             </c:if>

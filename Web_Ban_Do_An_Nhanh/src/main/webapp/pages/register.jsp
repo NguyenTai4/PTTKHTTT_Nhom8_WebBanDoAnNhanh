@@ -165,12 +165,22 @@
                 </a>
                 <h2>Tạo tài khoản của bạn</h2>
             </div>
-            <c:if test="${not empty errorMessage}">
-                <div style="color: #ff5e36; text-align: center; margin-bottom: 15px; font-size: 0.9rem;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ${errorMessage}
+            <% 
+               String errorMsg = null;
+               if (request.getAttribute("error") != null) {
+                   errorMsg = (String) request.getAttribute("error");
+               } else if (request.getAttribute("errorMessage") != null) {
+                   errorMsg = (String) request.getAttribute("errorMessage");
+               }
+               if (errorMsg != null) { 
+            %>
+                <div style="color: var(--color-red); text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> <%= errorMsg %>
                 </div>
-            </c:if>
-            <form action="${pageContext.request.contextPath}/register" method="POST">                <div class="form-group">
+            <% } %>
+            
+            <form action="${pageContext.request.contextPath}/register" method="POST">
+                <div class="form-group">
                     <label for="fullname">Họ và Tên</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-signature"></i>

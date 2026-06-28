@@ -192,17 +192,36 @@
                 </a>
                 <h2>Chào mừng bạn trở lại!</h2>
             </div>
-            <c:if test="${not empty errorMessage}">
-                <div style="color: #ff5e36; text-align: center; margin-bottom: 20px; font-size: 0.95rem; font-weight: 500; background: rgba(255, 94, 54, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 94, 54, 0.2);">
-                    <i class="fa-solid fa-circle-exclamation"></i> ${errorMessage}
+            <% 
+               String errorMsg = null;
+               if (request.getAttribute("error") != null) {
+                   errorMsg = (String) request.getAttribute("error");
+               } else if (request.getAttribute("errorMessage") != null) {
+                   errorMsg = (String) request.getAttribute("errorMessage");
+               }
+               if (errorMsg != null) { 
+            %>
+                <div style="color: var(--color-red); text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> <%= errorMsg %>
                 </div>
-            </c:if>
+            <% } %>
 
-            <c:if test="${not empty successMessage}">
-                <div style="color: #4cd964; text-align: center; margin-bottom: 20px; font-size: 0.95rem; font-weight: 500; background: rgba(76, 217, 100, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(76, 217, 100, 0.2);">
-                    <i class="fa-solid fa-circle-check"></i> ${successMessage}
+            <% 
+               String successMsg = null;
+               if (request.getAttribute("success") != null) {
+                   successMsg = (String) request.getAttribute("success");
+               } else if (request.getAttribute("successMessage") != null) {
+                   successMsg = (String) request.getAttribute("successMessage");
+               } else if (session.getAttribute("success") != null) {
+                   successMsg = (String) session.getAttribute("success");
+                   session.removeAttribute("success");
+               }
+               if (successMsg != null) { 
+            %>
+                <div style="color: #2ecc71; text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-check"></i> <%= successMsg %>
                 </div>
-            </c:if>
+            <% } %>
             <form action="${pageContext.request.contextPath}/login" method="POST">
                 <div class="form-group">
                     <label for="username">Tên đăng nhập / Email</label>
@@ -224,7 +243,7 @@
                     <label class="checkbox-container">
                         <input type="checkbox" name="remember"> Nhớ mật khẩu
                     </label>
-                    <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                    <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-link">Quên mật khẩu?</a>
                 </div>
 
                 <button type="submit" class="btn-primary btn-auth">Đăng Nhập</button>
