@@ -71,7 +71,7 @@
 
         <div class="nav-actions" style="display: flex; align-items: center; gap: 15px;">
             <!-- 12.7 inputSearchKeyword(keyword, page) -->
-            <div style="display:none;"> style="position: relative; display: flex; align-items: center;">
+            <form action="${pageContext.request.contextPath}/search" method="GET" style="position: relative; display: flex; align-items: center;">
                 <!-- 12.1 typeKeyword(partialText) -->
                 <input type="text" name="keyword" id="searchInput" value="${keyword}" placeholder="Tìm món ăn..." autocomplete="off" onkeyup="fetchSuggestions(this.value)" style="padding: 8px 35px 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; width: 220px; outline: none; transition: 0.3s;" onfocus="this.style.width='260px'; this.style.borderColor='var(--color-orange)';" onblur="if(this.value==='') this.style.width='220px'; this.style.borderColor='rgba(255,255,255,0.2)';">
                 <button type="submit" style="position: absolute; right: 10px; background: none; border: none; color: var(--text-muted); cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
