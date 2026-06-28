@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BiteSync | Đăng Nhập</title>
+    <title>BiteSync | Xác Thực OTP</title>
     
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
@@ -54,6 +54,13 @@
             color: var(--text-primary);
         }
         
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
         .form-group {
             margin-bottom: 24px;
             position: relative;
@@ -88,7 +95,10 @@
             border-radius: var(--radius-md);
             color: var(--text-primary);
             font-family: inherit;
-            font-size: 0.95rem;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-align: center;
+            font-weight: 700;
             transition: var(--transition-fast);
         }
         
@@ -96,36 +106,6 @@
             outline: none;
             border-color: var(--color-orange);
             box-shadow: 0 0 10px rgba(255, 94, 54, 0.2);
-        }
-        
-        .auth-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            margin-bottom: 24px;
-        }
-        
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-        
-        .checkbox-container input {
-            cursor: pointer;
-        }
-        
-        .forgot-link {
-            color: var(--color-orange);
-            text-decoration: none;
-            transition: var(--transition-fast);
-        }
-        
-        .forgot-link:hover {
-            text-decoration: underline;
         }
         
         .btn-auth {
@@ -137,20 +117,46 @@
             margin-bottom: 24px;
         }
         
+        .timer-container {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .timer-number {
+            color: var(--color-orange);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
         .auth-footer {
             text-align: center;
             font-size: 0.9rem;
             color: var(--text-secondary);
         }
         
-        .auth-footer a {
+        .resend-btn {
             color: var(--color-orange);
             text-decoration: none;
             font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+            transition: var(--transition-fast);
         }
         
-        .auth-footer a:hover {
+        .resend-btn:hover {
             text-decoration: underline;
+        }
+        
+        .resend-btn:disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+            text-decoration: none;
         }
         
         .back-home {
@@ -175,8 +181,8 @@
 </head>
 <body>
 
-    <a href="${pageContext.request.contextPath}/home" class="back-home">
-        <i class="fa-solid fa-arrow-left"></i> Quay lại trang chủ
+    <a href="${pageContext.request.contextPath}/forgot-password" class="back-home">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại Nhập Email
     </a>
 
     <div class="auth-container">
@@ -189,11 +195,12 @@
                 <a href="${pageContext.request.contextPath}/home" class="logo">
                     <i class="fa-solid fa-fire-flame-curved"></i> BiteSync
                 </a>
-                <h2>Chào mừng bạn trở lại!</h2>
+                <h2>Xác Thực OTP</h2>
+                <p>Chúng tôi đã gửi mã xác thực gồm 6 chữ số đến email của bạn: <strong><%= session.getAttribute("otp_email") %></strong></p>
             </div>
             
             <% if (request.getAttribute("error") != null) { %>
-                <div style="color: var(--color-red); text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                <div id="error-alert" style="color: var(--color-red); text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
                     <i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("error") %>
                 </div>
             <% } %>
@@ -212,38 +219,55 @@
                 </div>
             <% } %>
             
-            <form action="${pageContext.request.contextPath}/login" method="POST">
+            <form action="${pageContext.request.contextPath}/verify-otp" method="POST">
                 <div class="form-group">
-                    <label for="username">Tên đăng nhập / Email</label>
+                    <label for="otp">Mã Xác Thực OTP</label>
                     <div class="input-wrapper">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" id="username" name="username" class="form-input" placeholder="Nhập tài khoản của bạn" required>
+                        <i class="fa-solid fa-key" style="left: 18px;"></i>
+                        <input type="text" id="otp" name="otp" class="form-input" placeholder="------" maxlength="6" pattern="\d{6}" required autocomplete="off">
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password">Mật khẩu</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="password" name="password" class="form-input" placeholder="Nhập mật khẩu" required>
-                    </div>
+                <div class="timer-container" id="timer-box">
+                    Mã OTP hiệu lực còn lại: <span class="timer-number" id="countdown-timer">60s</span>
                 </div>
                 
-                <div class="auth-options">
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="remember"> Nhớ mật khẩu
-                    </label>
-                    <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-link">Quên mật khẩu?</a>
-                </div>
-                
-                <button type="submit" class="btn-primary btn-auth">Đăng Nhập</button>
+                <button type="submit" class="btn-primary btn-auth" id="verify-submit-btn">Xác Minh Mã OTP</button>
             </form>
             
             <div class="auth-footer">
-                Chưa có tài khoản? <a href="${pageContext.request.contextPath}/pages/register.jsp">Đăng ký ngay</a>
+                Chưa nhận được mã? 
+                <form action="${pageContext.request.contextPath}/resend-otp" method="POST" style="display:inline;">
+                    <button type="submit" id="resend-link" class="resend-btn" disabled>Gửi lại OTP</button>
+                </form>
             </div>
         </div>
     </div>
+
+    <!-- JavaScript for Countdown Timer and resend control -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var countdownTimer = document.getElementById("countdown-timer");
+            var resendLink = document.getElementById("resend-link");
+            var timerBox = document.getElementById("timer-box");
+            var verifySubmitBtn = document.getElementById("verify-submit-btn");
+            var errorAlert = document.getElementById("error-alert");
+
+            var timeLeft = 60; // 60 seconds limit
+            
+            var timerInterval = setInterval(function() {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    countdownTimer.textContent = "0s";
+                    timerBox.innerHTML = "<span style='color: var(--color-red); font-weight: 500;'>Mã OTP đã hết hiệu lực. Vui lòng bấm gửi lại!</span>";
+                    resendLink.disabled = false;
+                } else {
+                    countdownTimer.textContent = timeLeft + "s";
+                }
+            }, 1000);
+        });
+    </script>
 
 </body>
 </html>

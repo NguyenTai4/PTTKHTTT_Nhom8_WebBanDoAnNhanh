@@ -17,7 +17,7 @@ public class DBContext {
     private static final String USERNAME = "root";
     private static final String PASSWORD = ""; // Add your MySQL password here
 
-    /**
+        /**
      * Obtains a connection to the MySQL database.
      * @return Connection object
      * @throws ClassNotFoundException if the JDBC Driver is not found
