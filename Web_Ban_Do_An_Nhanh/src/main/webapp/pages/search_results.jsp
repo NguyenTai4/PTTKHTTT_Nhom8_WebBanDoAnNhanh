@@ -222,7 +222,17 @@
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
                     <c:forEach begin="1" end="${totalPages}" var="i">
-                        <a href="?keyword=${keyword}&page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                        <c:choose>
+                            <c:when test="${action == 'filter'}">
+                                <a href="?action=filter&category=${category}&price=${price}&page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                            </c:when>
+                            <c:when test="${not empty keyword}">
+                                <a href="?keyword=${keyword}&page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="?page=${i}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                            </c:otherwise>
+                        </c:choose>
                     </c:forEach>
                 </div>
             </c:if>

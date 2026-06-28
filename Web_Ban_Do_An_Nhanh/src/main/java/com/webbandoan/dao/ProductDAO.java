@@ -60,12 +60,48 @@ public class ProductDAO {
         }
         return 0;
     }
-    // 10.6. queryDefaultProducts()
-    public List<Product> queryDefaultProducts() {
-        List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM foods LIMIT " + ITEMS_PER_PAGE;
+
+    // Lấy tổng số trang cho DS Mặc định
+    public int getTotalPagesForDefault() {
+        String sql = "SELECT COUNT(*) FROM foods";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int totalProducts = rs.getInt(1);
+                return (int) Math.ceil((double) totalProducts / ITEMS_PER_PAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Lấy tổng số trang cho Tìm kiếm
+    public int getTotalPagesForSearch(String keyword) {
+        String sql = "SELECT COUNT(*) FROM foods WHERE name LIKE ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int totalProducts = rs.getInt(1);
+                return (int) Math.ceil((double) totalProducts / ITEMS_PER_PAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    // 10.6. queryDefaultProducts()
+    public List<Product> queryDefaultProducts(int page) {
+        List<Product> list = new ArrayList<>();
+        int offset = (page - 1) * ITEMS_PER_PAGE;
+        String sql = "SELECT * FROM foods LIMIT ? OFFSET ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ITEMS_PER_PAGE);
+            ps.setInt(2, offset);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Product(

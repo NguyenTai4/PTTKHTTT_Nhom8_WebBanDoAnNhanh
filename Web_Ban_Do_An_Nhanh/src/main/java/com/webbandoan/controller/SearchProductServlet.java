@@ -20,11 +20,17 @@ public class SearchProductServlet extends HttpServlet {
         String action = request.getParameter("action");
         String keyword = request.getParameter("keyword");
         
+        int page = 1;
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (Exception e) {}
+        }
+        
         if ("suggest".equals(action)) {
             String partial = request.getParameter("partial");
-            // 12.2. getSuggestions(partial)
             if (partial != null && !partial.trim().isEmpty()) {
-                // 12.4. return nameList
                 List<String> suggestions = productDAO.findSuggestedNames(partial);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -34,19 +40,19 @@ public class SearchProductServlet extends HttpServlet {
                     if (i < suggestions.size() - 1) json.append(",");
                 }
                 json.append("]");
-                // 12.5. return suggestions
                 response.getWriter().write(json.toString());
             } else {
                 response.getWriter().write("[]");
             }
             return;
-        } else if ("clear".equals(action)) {
-            // 10.5. getDefaultProducts()
-            List<Product> products = productDAO.queryDefaultProducts();
-            // 10.8. return products
-            request.setAttribute("products", products);
-            request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
-            return;
+        } 
+        
+        int totalPages = 1;
+        List<Product> products = null;
+
+        if ("clear".equals(action)) {
+            products = productDAO.queryDefaultProducts(page);
+            totalPages = productDAO.getTotalPagesForDefault();
         } else if ("filter".equals(action)) {
             String category = request.getParameter("category");
             String priceParam = request.getParameter("price");
@@ -59,26 +65,30 @@ public class SearchProductServlet extends HttpServlet {
                     maxPrice = Integer.parseInt(parts[1]);
                 } catch (Exception e) {}
             }
-            // 10.11. filterProducts(criteria)
-            List<Product> products = productDAO.queryProducts(category, minPrice, maxPrice, 0, 20);
+            
+            // Limit 12 products per page (ITEMS_PER_PAGE in DAO)
+            int offset = (page - 1) * 12; 
+            products = productDAO.queryProducts(category, minPrice, maxPrice, offset, 12);
+            totalPages = productDAO.getTotalPagesForFilter(category, priceParam);
+            
             if (products == null || products.isEmpty()) {
-                // 10.16. return emptyList
                 request.setAttribute("errorFilter", "Không tìm thấy sản phẩm phù hợp.");
             }
-            request.setAttribute("products", products);
-            request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
-            return;
+            request.setAttribute("category", category);
+            request.setAttribute("price", priceParam);
+        } else if (keyword != null && !keyword.trim().isEmpty()) {
+            products = productDAO.getProducts(keyword, page);
+            totalPages = productDAO.getTotalPagesForSearch(keyword);
+            request.setAttribute("keyword", keyword);
+        } else {
+            products = productDAO.queryDefaultProducts(page);
+            totalPages = productDAO.getTotalPagesForDefault();
         }
         
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            // 12.8. processSearch(keyword, page)
-            List<Product> products = productDAO.getProducts(keyword, 1);
-            // 12.10. return pageResult
-            request.setAttribute("products", products);
-        } else {
-            List<Product> products = productDAO.queryDefaultProducts();
-            request.setAttribute("products", products);
-        }
+        request.setAttribute("action", action);
+        request.setAttribute("products", products);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
         request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
     }
 }
