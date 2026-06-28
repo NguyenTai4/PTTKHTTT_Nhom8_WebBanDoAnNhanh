@@ -74,8 +74,8 @@ public class ProductDAO {
                         rs.getString("name"),
                         rs.getString("description"),
                         rs.getDouble("price"),
-                        rs.getString("image"),
-                        rs.getInt("quantity_in_stock")
+                        rs.getString("image_url"),
+                        100 // dummy quantity
                 ));
             }
         } catch (Exception e) {
@@ -116,8 +116,8 @@ public class ProductDAO {
                         rs.getString("name"),
                         rs.getString("description"),
                         rs.getDouble("price"),
-                        rs.getString("image"),
-                        rs.getInt("quantity_in_stock")
+                        rs.getString("image_url"),
+                        100
                 ));
             }
         } catch (Exception e) {
@@ -163,8 +163,8 @@ public class ProductDAO {
                         rs.getString("name"),
                         rs.getString("description"),
                         rs.getDouble("price"),
-                        rs.getString("image"),
-                        rs.getInt("quantity_in_stock")
+                        rs.getString("image_url"),
+                        100
                 ));
             }
         } catch (Exception e) {
