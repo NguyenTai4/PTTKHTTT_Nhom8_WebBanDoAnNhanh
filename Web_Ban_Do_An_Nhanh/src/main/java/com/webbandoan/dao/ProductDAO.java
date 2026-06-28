@@ -1,6 +1,6 @@
 package com.webbandoan.dao;
 
-import com.webbandoan.model.Food;
+import com.webbandoan.model.Product;
 import com.webbandoan.utils.DBContext;
 
 import java.sql.Connection;
@@ -11,50 +11,64 @@ import java.util.List;
 
 public class ProductDAO {
 
-    // 12.3 findSuggestedNames(partial)
-    public List<String> findSuggestedNames(String partial) {
-        List<String> list = new ArrayList<>();
-        String sql = "SELECT name FROM products WHERE name LIKE ? LIMIT 5";
+    // 10.6. queryDefaultProducts()
+    public List<Product> queryDefaultProducts() {
+        List<Product> defaultList = new ArrayList<>();
+        String sql = "SELECT * FROM products LIMIT 20";
         try (Connection conn = DBContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + partial + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(rs.getString("name"));
-                }
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Product product = new Product(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getDouble("price"),
+                    rs.getInt("stock_quantity"),
+                    rs.getString("image"),
+                    rs.getString("brand"),
+                    rs.getInt("category_id"),
+                    rs.getString("status"),
+                    rs.getString("description")
+                );
+                defaultList.add(product);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return list; // 12.4 return nameList
+        // 10.7. return defaultList
+        return defaultList;
     }
 
-    // 12.9 getProducts(keyword, page)
-    public List<Food> getProducts(String keyword, int page) {
-        List<Food> list = new ArrayList<>();
-        int pageSize = 12; 
-        int offset = (page - 1) * pageSize;
-        
-        String sql = "SELECT p.* FROM products p WHERE p.name LIKE ? LIMIT ? OFFSET ?";
+    // 10.12. queryProducts(criteria)
+    public List<Product> queryProducts(String criteria) {
+        List<Product> filteredList = new ArrayList<>();
+        String sql = "SELECT * FROM products WHERE name LIKE ? OR brand LIKE ? OR description LIKE ?";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            ps.setInt(2, pageSize);
-            ps.setInt(3, offset);
+            String searchPattern = "%" + criteria + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Food food = new Food();
-                    food.setId(rs.getInt("id"));
-                    food.setName(rs.getString("name"));
-                    food.setDescription(rs.getString("description"));
-                    food.setPrice(rs.getDouble("price"));
-                    food.setImageUrl(rs.getString("image"));
-                    list.add(food);
+                    Product product = new Product(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock_quantity"),
+                        rs.getString("image"),
+                        rs.getString("brand"),
+                        rs.getInt("category_id"),
+                        rs.getString("status"),
+                        rs.getString("description")
+                    );
+                    filteredList.add(product);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return list; // 12.10 return pageResult
+        // 10.13. return filteredList
+        return filteredList;
     }
 }
