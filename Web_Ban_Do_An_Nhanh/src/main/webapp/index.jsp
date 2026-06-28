@@ -72,9 +72,13 @@
         </ul>
 
         <div class="nav-actions" style="display: flex; align-items: center; gap: 15px;">
-            <button class="btn-icon" title="Tìm kiếm">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
+            <form action="${pageContext.request.contextPath}/search" method="get" class="header-search-form" style="position: relative;">
+                <input type="text" name="q" id="searchInput" placeholder="Tìm kiếm món ăn..." onkeyup="fetchSuggestions()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ddd;">
+                <button type="submit" class="btn-icon" title="Tìm kiếm">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <ul id="suggestionBox" style="position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; width: 100%; display: none; list-style: none; padding: 0; margin: 0; z-index: 1000; color: black; max-height: 200px; overflow-y: auto;"></ul>
+            </form>
 
             <button class="btn-icon" style="position: relative;" title="Giỏ hàng" onclick="window.location.href='${pageContext.request.contextPath}/cart'">
                 <i class="fa-solid fa-basket-shopping"></i>
@@ -284,6 +288,49 @@
             toast.classList.remove('show');
         }, 3000);
     }
+    
+    function fetchSuggestions() {
+        // 12.1. typeKeyword(partialText)
+        const query = document.getElementById("searchInput").value;
+        const box = document.getElementById("suggestionBox");
+        if (query.length < 2) {
+            box.style.display = "none";
+            return;
+        }
+        fetch("${pageContext.request.contextPath}/search?action=suggest&q=" + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                box.innerHTML = "";
+                if (data.length > 0) {
+                    // 12.6. renderDropdown(suggestions)
+                    box.style.display = "block";
+                    data.forEach(item => {
+                        const li = document.createElement("li");
+                        li.textContent = item;
+                        li.style.padding = "10px";
+                        li.style.cursor = "pointer";
+                        li.onmouseover = function() { this.style.background = "#f0f0f0"; };
+                        li.onmouseout = function() { this.style.background = "transparent"; };
+                        li.onclick = function() {
+                            document.getElementById("searchInput").value = item;
+                            box.style.display = "none";
+                            // 12.7. inputSearchKeyword(keyword, page)
+                            document.getElementById("searchInput").closest("form").submit();
+                        };
+                        box.appendChild(li);
+                    });
+                } else {
+                    box.style.display = "none";
+                }
+            })
+            .catch(e => console.error("Error fetching suggestions:", e));
+    }
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".header-search-form")) {
+            const box = document.getElementById("suggestionBox");
+            if(box) box.style.display = "none";
+        }
+    });
 </script>
 </body>
 </html>
