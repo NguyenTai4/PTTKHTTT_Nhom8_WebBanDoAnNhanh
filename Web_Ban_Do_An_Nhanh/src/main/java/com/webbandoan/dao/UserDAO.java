@@ -93,7 +93,7 @@ public class UserDAO {
             
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new User(
+                    User user = new User(
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("email"),
@@ -102,6 +102,8 @@ public class UserDAO {
                         rs.getString("fullname"),
                         rs.getTimestamp("created_at")
                     );
+                    user.setActivated(rs.getInt("is_activated") == 1);
+                    return user;
                 }
             }
         } catch (Exception e) {
@@ -122,7 +124,7 @@ public class UserDAO {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new User(
+                    User user = new User(
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("email"),
@@ -131,6 +133,8 @@ public class UserDAO {
                         rs.getString("fullname"),
                         rs.getTimestamp("created_at")
                     );
+                    user.setActivated(rs.getInt("is_activated") == 1);
+                    return user;
                 }
             }
         } catch (Exception e) {
@@ -155,6 +159,24 @@ public class UserDAO {
             return affectedRows > 0;
         } catch (Exception e) {
             System.err.println("Error in UserDAO.updatePassword: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Locks a user account by setting is_activated to 0.
+     */
+    public boolean lockUser(String email) {
+        String query = "UPDATE users SET is_activated = 0 WHERE email = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setString(1, email);
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (Exception e) {
+            System.err.println("Error in UserDAO.lockUser: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

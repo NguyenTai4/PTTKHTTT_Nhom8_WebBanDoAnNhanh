@@ -35,13 +35,24 @@ public class DBContext {
     }
     
     /**
-     * Quick connection test helper.
+     * Quick connection test helper and database migration.
      */
     public static void main(String[] args) {
         try {
             Connection conn = getConnection();
             if (conn != null) {
                 System.out.println("Database connection established successfully!");
+                // Execute migration
+                try (java.sql.Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_activated TINYINT DEFAULT 1");
+                    System.out.println("Database migration (is_activated column added) executed successfully!");
+                } catch (SQLException e) {
+                    if (e.getErrorCode() == 1060 || e.getMessage().contains("Duplicate column")) { // Duplicate column name
+                        System.out.println("Column 'is_activated' already exists. No action needed.");
+                    } else {
+                        throw e;
+                    }
+                }
                 conn.close();
             }
         } catch (Exception e) {

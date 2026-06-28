@@ -6,28 +6,23 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 /**
- * Utility service to simulate or send email messages (e.g. OTP validation).
+ * Utility service to send email messages (e.g. OTP validation) via Gmail SMTP.
  */
 public class EmailService {
 
-    // Toggle this to true to enable sending real emails via Gmail SMTP.
-    private static final boolean ENABLE_REAL_SMTP = true; 
-
-    // Gmail SMTP Configuration Details
-    private static final String SMTP_HOST = "smtp.gmail.com";
-    private static final String SMTP_PORT = "587";
-    
-    // Read sender credentials from environment variables for security
+    // Read Gmail SMTP credentials from environment variables for security
     private static final String SENDER_EMAIL = System.getenv("BITESYNC_EMAIL"); 
     private static final String SENDER_PASSWORD = System.getenv("BITESYNC_APP_PASSWORD"); 
 
     /**
-     * Sends/simulates sending a 6-digit OTP code to the recipient email.
-     * Always logs the OTP code to standard output for testing in Dev environment.
+     * Sends a 6-digit OTP code to the recipient email via Gmail SMTP.
+     * Also writes it to a local debug file for easy local testing.
      */
     public static void sendEmailOTP(String recipientEmail, String otpCode) {
-        if (ENABLE_REAL_SMTP) {
+        if (SENDER_EMAIL != null && SENDER_PASSWORD != null && !SENDER_EMAIL.trim().isEmpty() && !SENDER_PASSWORD.trim().isEmpty()) {
             sendRealSMTP(recipientEmail, otpCode);
+        } else {
+            System.err.println("[BiteSync SMTP Warning] BITESYNC_EMAIL or BITESYNC_APP_PASSWORD environment variables are not set. Simulating email sending...");
         }
         
         // Debug output (Banner - plain ASCII to prevent encoding errors in Windows terminal)
@@ -51,14 +46,9 @@ public class EmailService {
     }
 
     private static void sendRealSMTP(String recipientEmail, String otpCode) {
-        if (SENDER_EMAIL == null || SENDER_PASSWORD == null || SENDER_EMAIL.trim().isEmpty() || SENDER_PASSWORD.trim().isEmpty()) {
-            System.err.println("[BiteSync SMTP Warning] Vui long thiet lap cac bien moi truong BITESYNC_EMAIL va BITESYNC_APP_PASSWORD de gui mail that.");
-            return;
-        }
-
         Properties prop = new Properties();
-        prop.put("mail.smtp.host", SMTP_HOST);
-        prop.put("mail.smtp.port", SMTP_PORT);
+        prop.put("mail.smtp.host", "smtp.gmail.com");
+        prop.put("mail.smtp.port", "587");
         prop.put("mail.smtp.auth", "true");
         prop.put("mail.smtp.starttls.enable", "true");
 
@@ -71,7 +61,7 @@ public class EmailService {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(SENDER_EMAIL));
+            message.setFrom(new InternetAddress(SENDER_EMAIL, "BiteSync Fast Food"));
             message.setRecipients(
                     Message.RecipientType.TO,
                     InternetAddress.parse(recipientEmail)
@@ -96,7 +86,7 @@ public class EmailService {
 
             Transport.send(message);
             System.out.println("[BiteSync SMTP] Da gui mail thanh cong den: " + recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             System.err.println("[BiteSync SMTP Error] Loi khi gui mail SMTP: " + e.getMessage());
             e.printStackTrace();
         }

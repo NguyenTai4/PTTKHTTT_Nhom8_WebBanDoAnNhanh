@@ -30,3 +30,6 @@ Desktop.ini
 
 # BiteSync Debug files
 otp_debug.txt
+
+# Local execution scripts containing environment credentials
+run.cmd

@@ -15,6 +15,7 @@ public class User implements Serializable {
     private String phone;
     private String password; // hashed
     private String fullname;
+    private boolean isActivated = true;
     private Timestamp createdAt;
 
     // Default Constructor
@@ -96,5 +97,13 @@ public class User implements Serializable {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(boolean isActivated) {
+        this.isActivated = isActivated;
     }
 }

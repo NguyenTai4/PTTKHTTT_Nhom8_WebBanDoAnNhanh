@@ -82,8 +82,16 @@ public class ForgotPasswordServlet extends HttpServlet {
             }
 
             // Check if email exists in database
-            if (!userDAO.isEmailExists(email)) {
+            User user = userDAO.getUserByEmail(email);
+            if (user == null) {
                 request.setAttribute("error", "Email không tồn tại trong hệ thống!");
+                request.getRequestDispatcher("/pages/forgot-password.jsp").forward(request, response);
+                return;
+            }
+
+            // Check if account is activated
+            if (!user.isActivated()) {
+                request.setAttribute("error", "Tài khoản chưa được kích hoạt hoặc đã bị khóa!");
                 request.getRequestDispatcher("/pages/forgot-password.jsp").forward(request, response);
                 return;
             }
@@ -96,6 +104,7 @@ public class ForgotPasswordServlet extends HttpServlet {
             session.setAttribute("otp_code", otpCode);
             session.setAttribute("otp_time", System.currentTimeMillis());
             session.removeAttribute("otp_verified"); // clear old verification states
+            session.removeAttribute("otp_failed_attempts"); // clear old failed attempts
 
             // Send OTP
             EmailService.sendEmailOTP(email, otpCode);
@@ -135,10 +144,33 @@ public class ForgotPasswordServlet extends HttpServlet {
             if (enteredOtp.equals(correctOtp)) {
                 // Success: Set verified flag
                 session.setAttribute("otp_verified", true);
+                session.removeAttribute("otp_failed_attempts");
                 response.sendRedirect(request.getContextPath() + "/reset-password");
             } else {
-                request.setAttribute("error", "Mã OTP không chính xác!");
-                request.getRequestDispatcher("/pages/verify-otp.jsp").forward(request, response);
+                Integer failedAttempts = (Integer) session.getAttribute("otp_failed_attempts");
+                if (failedAttempts == null) {
+                    failedAttempts = 0;
+                }
+                failedAttempts++;
+                session.setAttribute("otp_failed_attempts", failedAttempts);
+
+                if (failedAttempts >= 3) {
+                    // Lock user account
+                    userDAO.lockUser(email);
+
+                    // Clear OTP session values
+                    session.removeAttribute("otp_email");
+                    session.removeAttribute("otp_code");
+                    session.removeAttribute("otp_time");
+                    session.removeAttribute("otp_failed_attempts");
+                    session.removeAttribute("otp_verified");
+
+                    request.setAttribute("error", "Tài khoản của bạn đã bị khóa do nhập sai OTP quá 3 lần!");
+                    request.getRequestDispatcher("/pages/forgot-password.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("error", "Mã OTP không chính xác! Bạn còn " + (3 - failedAttempts) + " lần thử.");
+                    request.getRequestDispatcher("/pages/verify-otp.jsp").forward(request, response);
+                }
             }
         } 
         
@@ -153,6 +185,7 @@ public class ForgotPasswordServlet extends HttpServlet {
             String otpCode = String.format("%06d", random.nextInt(1000000));
             session.setAttribute("otp_code", otpCode);
             session.setAttribute("otp_time", System.currentTimeMillis());
+            session.removeAttribute("otp_failed_attempts"); // reset failed attempts counter for new OTP code
 
             // Resend
             EmailService.sendEmailOTP(email, otpCode);
