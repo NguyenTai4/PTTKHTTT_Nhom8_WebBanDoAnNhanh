@@ -258,6 +258,13 @@
         <div class="cart-items-panel">
             <h2 class="cart-title">Giỏ Hàng Của Bạn</h2>
 
+            <c:if test="${not empty sessionScope.error}">
+                <div style="color: var(--color-red); background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); padding: 12px 16px; border-radius: var(--radius-md); text-align: center; margin-bottom: 20px; font-weight: 500;">
+                    <i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}
+                </div>
+                <% session.removeAttribute("error"); %>
+            </c:if>
+
             <c:if test="${empty cartItems}">
                 <div class="empty-cart-msg">
                     <i class="fa-solid fa-basket-shopping"></i>
@@ -311,7 +318,7 @@
             <h3 class="summary-title">Tóm Tắt Đơn Hàng</h3>
             <div class="summary-row">
                 <span>Tạm tính</span>
-                <span>$${String.format("%.2f", subTotal != null ? subTotal : 0)}</span>
+                <span>$${String.format("%.2f", subTotal != null ? subTotal : 0.0)}</span>
             </div>
             <div class="summary-row">
                 <span>Phí vận chuyển</span>
@@ -323,7 +330,7 @@
             </div>
             <div class="summary-row total">
                 <span>Tổng cộng</span>
-                <span>$${String.format("%.2f", (subTotal != null && subTotal > 0) ? (subTotal + 1.50) : 0)}</span>
+                <span>$${String.format("%.2f", (subTotal != null && subTotal > 0) ? (subTotal + 1.50) : 0.0)}</span>
             </div>
 
             <c:choose>
@@ -331,7 +338,7 @@
                     <button class="btn-primary btn-checkout" style="opacity: 0.5; cursor: not-allowed;" disabled>Tiến Hành Thanh Toán</button>
                 </c:when>
                 <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/pages/checkout.jsp" class="btn-primary btn-checkout">Tiến Hành Thanh Toán</a>
+                    <a href="${pageContext.request.contextPath}/checkout" class="btn-primary btn-checkout">Tiến Hành Thanh Toán</a>
                 </c:otherwise>
             </c:choose>
         </div>
