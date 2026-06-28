@@ -74,6 +74,9 @@ public class SearchProductServlet extends HttpServlet {
             List<Product> products = productDAO.getProducts(keyword, 1);
             // 12.10. return pageResult
             request.setAttribute("products", products);
+        } else {
+            List<Product> products = productDAO.queryDefaultProducts();
+            request.setAttribute("products", products);
         }
         request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
     }
