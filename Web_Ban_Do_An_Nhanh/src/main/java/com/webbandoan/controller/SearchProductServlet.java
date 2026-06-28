@@ -21,10 +21,11 @@ public class SearchProductServlet extends HttpServlet {
         String keyword = request.getParameter("keyword");
         
         if ("suggest".equals(action)) {
+            String partial = request.getParameter("partial");
             // 12.2. getSuggestions(partial)
-            if (keyword != null && !keyword.trim().isEmpty()) {
+            if (partial != null && !partial.trim().isEmpty()) {
                 // 12.4. return nameList
-                List<String> suggestions = productDAO.findSuggestedNames(keyword);
+                List<String> suggestions = productDAO.findSuggestedNames(partial);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 StringBuilder json = new StringBuilder("[");
