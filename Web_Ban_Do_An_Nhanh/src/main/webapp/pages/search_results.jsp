@@ -170,7 +170,7 @@
             </c:if>
             
             <c:if test="${not empty errorSearch}">
-                <!-- 12.8 renderErrorMsg() -->
+                <!-- 12.14 renderErrorMsg() -->
                 <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
                     <i class="fa-solid fa-magnifying-glass-minus"></i> ${errorSearch}
                 </div>
@@ -208,6 +208,7 @@
                         </c:forEach>
                     </c:when>
                     <c:otherwise>
+                        <!-- 12.13 return emptyResult -->
                         <div class="empty-state">
                             <i class="fa-solid fa-magnifying-glass-minus"></i>
                             <p>Không tìm thấy món ăn nào phù hợp với yêu cầu của bạn.</p>
@@ -217,6 +218,7 @@
             </div>
 
             <!-- Phân trang -->
+            <!-- 12.11 return pageResult -->
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
                     <c:forEach begin="1" end="${totalPages}" var="i">

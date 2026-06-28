@@ -21,7 +21,9 @@ public class SearchProductServlet extends HttpServlet {
         String keyword = request.getParameter("keyword");
         
         if ("suggest".equals(action)) {
+            // 12.2. getSuggestions(partial)
             if (keyword != null && !keyword.trim().isEmpty()) {
+                // 12.4. return nameList
                 List<String> suggestions = productDAO.findSuggestedNames(keyword);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -31,13 +33,16 @@ public class SearchProductServlet extends HttpServlet {
                     if (i < suggestions.size() - 1) json.append(",");
                 }
                 json.append("]");
+                // 12.5. return suggestions
                 response.getWriter().write(json.toString());
             } else {
                 response.getWriter().write("[]");
             }
             return;
         } else if ("clear".equals(action)) {
+            // 10.5. getDefaultProducts()
             List<Product> products = productDAO.queryDefaultProducts();
+            // 10.8. return products
             request.setAttribute("products", products);
             request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);
             return;
@@ -53,8 +58,10 @@ public class SearchProductServlet extends HttpServlet {
                     maxPrice = Integer.parseInt(parts[1]);
                 } catch (Exception e) {}
             }
+            // 10.11. filterProducts(criteria)
             List<Product> products = productDAO.queryProducts(category, minPrice, maxPrice, 0, 20);
             if (products == null || products.isEmpty()) {
+                // 10.16. return emptyList
                 request.setAttribute("errorFilter", "Không tìm thấy sản phẩm phù hợp.");
             }
             request.setAttribute("products", products);
@@ -63,7 +70,9 @@ public class SearchProductServlet extends HttpServlet {
         }
         
         if (keyword != null && !keyword.trim().isEmpty()) {
+            // 12.8. processSearch(keyword, page)
             List<Product> products = productDAO.getProducts(keyword, 1);
+            // 12.10. return pageResult
             request.setAttribute("products", products);
         }
         request.getRequestDispatcher("/pages/search_results.jsp").forward(request, response);

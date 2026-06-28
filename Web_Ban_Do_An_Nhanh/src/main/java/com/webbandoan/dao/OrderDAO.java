@@ -43,7 +43,34 @@ public class OrderDAO {
         return list;
     }
 
-    
+    // 9.9. queryOrderDetails(orderId)
+    public Order queryOrder(String orderId) {
+        Order order = null;
+        String sql = "SELECT * FROM orders WHERE id = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, Long.parseLong(orderId));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                order = new Order(
+                        rs.getLong("id"),
+                        rs.getLong("user_id"),
+                        rs.getString("receive_name"),
+                        rs.getString("phone_number"),
+                        rs.getString("shipping_address"),
+                        rs.getString("payment_method"),
+                        rs.getString("order_status"),
+                        rs.getDouble("total_amount"),
+                        rs.getDouble("final_amount"),
+                        rs.getTimestamp("created_at")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 9.10. return orderData
+        return order;
+    }
 }
 
 }

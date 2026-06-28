@@ -60,6 +60,117 @@ public class ProductDAO {
         }
         return 0;
     }
-}
+    // 10.6. queryDefaultProducts()
+    public List<Product> queryDefaultProducts() {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM foods LIMIT " + ITEMS_PER_PAGE;
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Product(
+                        rs.getLong("id"),
+                        rs.getInt("category_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getString("image"),
+                        rs.getInt("quantity_in_stock")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 10.7. return defaultList
+        return list;
+    }
 
+    // 10.12. queryProducts(criteria)
+    public List<Product> queryProducts(String category, int minPrice, int maxPrice, int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM foods WHERE price >= ? AND price <= ? ");
+        
+        if (category != null && !category.isEmpty() && !category.equals("all")) {
+            sql.append(" AND category_id = ? ");
+        }
+        sql.append(" LIMIT ? OFFSET ?");
+        
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            ps.setDouble(1, minPrice);
+            ps.setDouble(2, maxPrice);
+            int paramIndex = 3;
+            
+            if (category != null && !category.isEmpty() && !category.equals("all")) {
+                ps.setInt(paramIndex++, Integer.parseInt(category));
+            }
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex, offset);
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Product(
+                        rs.getLong("id"),
+                        rs.getInt("category_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getString("image"),
+                        rs.getInt("quantity_in_stock")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 10.13. return filteredList
+        return list;
+    }
+
+    // 12.3. findSuggestedNames(partial)
+    public List<String> findSuggestedNames(String partial) {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT name FROM foods WHERE name LIKE ? LIMIT 5";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + partial + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 12.4. return nameList
+        return list;
+    }
+
+    // 12.9. getProducts(keyword, page)
+    public List<Product> getProducts(String keyword, int page) {
+        List<Product> list = new ArrayList<>();
+        int offset = (page - 1) * ITEMS_PER_PAGE;
+        String sql = "SELECT * FROM foods WHERE name LIKE ? LIMIT ? OFFSET ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setInt(2, ITEMS_PER_PAGE);
+            ps.setInt(3, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Product(
+                        rs.getLong("id"),
+                        rs.getInt("category_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getString("image"),
+                        rs.getInt("quantity_in_stock")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+}
 }

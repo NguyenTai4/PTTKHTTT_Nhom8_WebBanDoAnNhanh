@@ -16,19 +16,36 @@ public class OrderTrackingServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String orderCode = request.getParameter("orderCode");
+        String orderIdStr = request.getParameter("orderId");
         
-        if (orderCode != null && !orderCode.trim().isEmpty()) {
-            Order order = orderDAO.queryOrder(orderCode);
-            
-            if (order == null) {
-                request.setAttribute("error", "Không tìm thấy đơn hàng với mã: " + orderCode);
+        // Giả lập lấy userId từ session
+        com.webbandoan.model.Account account = (com.webbandoan.model.Account) request.getSession().getAttribute("loggedUser");
+        long userId = account != null ? account.getId() : 1L; // Fallback for test
+        
+        if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
+            try {
+                long orderId = Long.parseLong(orderIdStr);
+                // 9.8. getOrderDetails(orderId)
+                Order order = orderDAO.queryOrder(String.valueOf(orderId));
+                
+                if (order == null) {
+                    // 9.13. return error
+                    request.setAttribute("error", "Không tìm thấy đơn hàng với mã: " + orderId);
+                    request.getRequestDispatcher("/pages/order_tracking.jsp").forward(request, response);
+                } else {
+                    // 9.11. return data
+                    request.setAttribute("order", order);
+                    request.getRequestDispatcher("/pages/order_details.jsp").forward(request, response);
+                }
+            } catch (Exception e) {
+                request.setAttribute("error", "Mã đơn hàng không hợp lệ.");
                 request.getRequestDispatcher("/pages/order_tracking.jsp").forward(request, response);
-            } else {
-                request.setAttribute("order", order);
-                request.getRequestDispatcher("/pages/order_details.jsp").forward(request, response);
             }
         } else {
+            // 9.2. getOrders(userId)
+            List<Order> orders = orderDAO.queryOrders(userId);
+            // 9.5. return orders
+            request.setAttribute("orders", orders);
             request.getRequestDispatcher("/pages/order_tracking.jsp").forward(request, response);
         }
     }

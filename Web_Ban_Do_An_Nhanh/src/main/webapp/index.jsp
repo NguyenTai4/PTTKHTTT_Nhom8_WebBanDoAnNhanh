@@ -291,6 +291,7 @@
     }
 
     function fetchSuggestions(partial) {
+        // 12.1. typeKeyword(partialText)
         let box = document.getElementById("suggestionBox");
         if (!partial || partial.trim() === "") {
             box.style.display = "none";
@@ -302,6 +303,7 @@
             .then(data => {
                 box.innerHTML = "";
                 if (data.length > 0) {
+                    // 12.6. renderDropdown(suggestions)
                     box.style.display = "block";
                     data.forEach(item => {
                         let li = document.createElement("li");
@@ -316,6 +318,7 @@
                         li.onclick = function() {
                             document.getElementById("searchInput").value = item;
                             box.style.display = "none";
+                            // 12.7. inputSearchKeyword(keyword, page)
                             document.getElementById("searchInput").closest("form").submit();
                         };
                         box.appendChild(li);
