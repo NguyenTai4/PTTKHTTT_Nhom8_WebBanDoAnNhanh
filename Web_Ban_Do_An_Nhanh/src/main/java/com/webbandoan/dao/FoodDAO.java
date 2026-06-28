@@ -20,6 +20,7 @@ public class FoodDAO {
                 food.setPrice(rs.getDouble("price"));
                 food.setImageUrl(rs.getString("image_url"));
                 food.setCategoryName(rs.getString("category_name"));
+                food.setStock(rs.getInt("stock"));
                 return food;
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -42,6 +43,7 @@ public class FoodDAO {
                 food.setPrice(rs.getDouble("price"));
                 food.setImageUrl(rs.getString("image_url"));
                 food.setCategoryName(rs.getString("category_code"));
+                food.setStock(rs.getInt("stock"));
 
                 list.add(food);
             }
@@ -49,5 +51,18 @@ public class FoodDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public boolean updateStock(int foodId, int qtyChange) {
+        String query = "UPDATE foods SET stock = stock + ? WHERE id = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, qtyChange);
+            ps.setInt(2, foodId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

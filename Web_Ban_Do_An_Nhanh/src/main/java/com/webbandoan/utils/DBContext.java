@@ -42,16 +42,66 @@ public class DBContext {
             Connection conn = getConnection();
             if (conn != null) {
                 System.out.println("Database connection established successfully!");
-                // Execute migration
+                
                 try (java.sql.Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_activated TINYINT DEFAULT 1");
-                    System.out.println("Database migration (is_activated column added) executed successfully!");
-                } catch (SQLException e) {
-                    if (e.getErrorCode() == 1060 || e.getMessage().contains("Duplicate column")) { // Duplicate column name
-                        System.out.println("Column 'is_activated' already exists. No action needed.");
-                    } else {
-                        throw e;
+                    // 1. Alter users table for activation
+                    try {
+                        stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_activated TINYINT DEFAULT 1");
+                        System.out.println("Database migration (users.is_activated added) executed successfully!");
+                    } catch (SQLException e) {
+                        if (e.getErrorCode() != 1060 && !e.getMessage().contains("Duplicate column")) throw e;
                     }
+
+                    // 2. Alter foods table for stock
+                    try {
+                        stmt.executeUpdate("ALTER TABLE foods ADD COLUMN stock INT NOT NULL DEFAULT 20");
+                        System.out.println("Database migration (foods.stock added) executed successfully!");
+                    } catch (SQLException e) {
+                        if (e.getErrorCode() != 1060 && !e.getMessage().contains("Duplicate column")) throw e;
+                    }
+
+                    // 3. Create promotions table
+                    stmt.executeUpdate("CREATE TABLE IF NOT EXISTS promotions (" +
+                            "code VARCHAR(50) PRIMARY KEY, " +
+                            "discount_percent INT NOT NULL, " +
+                            "is_active TINYINT DEFAULT 1" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    // Insert dummy promotions
+                    stmt.executeUpdate("INSERT IGNORE INTO promotions (code, discount_percent) VALUES " +
+                            "('BITESYNC10', 10), ('BITESYNC20', 20)");
+
+                    // 4. Create orders table
+                    stmt.executeUpdate("CREATE TABLE IF NOT EXISTS orders (" +
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "user_id INT NOT NULL, " +
+                            "fullname VARCHAR(100) NOT NULL, " +
+                            "phone VARCHAR(20) NOT NULL, " +
+                            "address TEXT NOT NULL, " +
+                            "notes TEXT, " +
+                            "payment_method VARCHAR(50) NOT NULL, " +
+                            "payment_status VARCHAR(50) NOT NULL DEFAULT 'Chờ thanh toán', " +
+                            "total_price DECIMAL(10, 2) NOT NULL, " +
+                            "promo_code VARCHAR(50) DEFAULT NULL, " +
+                            "discount_amount DECIMAL(10, 2) DEFAULT 0.00, " +
+                            "shipping_fee DECIMAL(10, 2) DEFAULT 2.00, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                            "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " +
+                            "FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    // 5. Create order_items table
+                    stmt.executeUpdate("CREATE TABLE IF NOT EXISTS order_items (" +
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "order_id INT NOT NULL, " +
+                            "food_id INT NOT NULL, " +
+                            "quantity INT NOT NULL, " +
+                            "price DECIMAL(10, 2) NOT NULL, " +
+                            "FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE, " +
+                            "FOREIGN KEY (food_id) REFERENCES foods (id) ON DELETE CASCADE" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    System.out.println("Database migration (checkout tables) executed successfully!");
                 }
                 conn.close();
             }
