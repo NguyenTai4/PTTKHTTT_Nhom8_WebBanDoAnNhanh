@@ -1,9 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<c:if test="${empty foodList}">
-    <c:redirect url="/home"/>
-</c:if>
+<!-- Đã bỏ redirect để tránh vòng lặp vô tận khi chưa có data -->
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -66,15 +64,22 @@
 
         <ul class="nav-links">
             <li><a href="#home" class="active">Trang Chủ</a></li>
-            <li><a href="#menu">Thực Đơn</a></li>
+            <li><a href="${pageContext.request.contextPath}/search">Thực Đơn</a></li>
             <li><a href="#about">Về Chúng Tôi</a></li>
             <li><a href="#contact">Liên Hệ</a></li>
         </ul>
 
         <div class="nav-actions" style="display: flex; align-items: center; gap: 15px;">
-            <button class="btn-icon" title="Tìm kiếm">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
+            <!-- 12.7 inputSearchKeyword(keyword, page) -->
+            <div style="display:none;"> style="position: relative; display: flex; align-items: center;">
+                <!-- 12.1 typeKeyword(partialText) -->
+                <input type="text" name="keyword" id="searchInput" value="${keyword}" placeholder="Tìm món ăn..." autocomplete="off" onkeyup="fetchSuggestions(this.value)" style="padding: 8px 35px 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; width: 220px; outline: none; transition: 0.3s;" onfocus="this.style.width='260px'; this.style.borderColor='var(--color-orange)';" onblur="if(this.value==='') this.style.width='220px'; this.style.borderColor='rgba(255,255,255,0.2)';">
+                <button type="submit" style="position: absolute; right: 10px; background: none; border: none; color: var(--text-muted); cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
+                
+                <!-- 12.6 renderDropdown(suggestions) -->
+                <ul id="suggestionBox" style="display: none; position: absolute; top: 110%; left: 0; right: 0; background: rgba(30, 30, 40, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; z-index: 1000; list-style: none; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: left; overflow: hidden;">
+                </ul>
+            </form>
 
             <button class="btn-icon" style="position: relative;" title="Giỏ hàng" onclick="window.location.href='${pageContext.request.contextPath}/cart'">
                 <i class="fa-solid fa-basket-shopping"></i>
@@ -198,7 +203,7 @@
                 <h4>Liên Kết Nhanh</h4>
                 <ul class="footer-links">
                     <li><a href="#home">Trang Chủ</a></li>
-                    <li><a href="#menu">Thực Đơn</a></li>
+                    <li><a href="${pageContext.request.contextPath}/search">Thực Đơn</a></li>
                     <li><a href="#about">Về Chúng Tôi</a></li>
                     <li><a href="#contact">Liên Hệ</a></li>
                 </ul>
@@ -284,6 +289,51 @@
             toast.classList.remove('show');
         }, 3000);
     }
+
+    /* integrated api */ function fetchSuggestions(partial) {
+        let box = document.getElementById("suggestionBox");
+        if (!partial || partial.trim() === "") {
+            box.style.display = "none";
+            return;
+        }
+        
+        fetch("${pageContext.request.contextPath}/search?action=suggest&partial=" + encodeURIComponent(partial))
+            .then(response => response.json())
+            .then(data => {
+                box.innerHTML = "";
+                if (data.length > 0) {
+                    box.style.display = "block";
+                    data.forEach(item => {
+                        let li = document.createElement("li");
+                        li.style.padding = "10px 15px";
+                        li.style.cursor = "pointer";
+                        li.style.color = "white";
+                        li.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                        li.innerHTML = '<i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted); margin-right: 10px;"></i>' + item;
+                        
+                        li.onmouseover = function() { this.style.background = "rgba(255,255,255,0.1)"; };
+                        li.onmouseout = function() { this.style.background = "transparent"; };
+                        li.onclick = function() {
+                            document.getElementById("searchInput").value = item;
+                            box.style.display = "none";
+                            document.getElementById("searchInput").closest("form").submit();
+                        };
+                        box.appendChild(li);
+                    });
+                } else {
+                    box.style.display = "none";
+                }
+            })
+            .catch(e => console.error("Error fetching suggestions:", e));
+    }
+    
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".header-search-form")) {
+            const box = document.getElementById("suggestionBox");
+            if(box) box.style.display = "none";
+        }
+    });
 </script>
 </body>
 </html>
+<!-- commit 18 -->
