@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/order-tracking")
 public class OrderTrackingServlet extends HttpServlet {
@@ -19,7 +20,7 @@ public class OrderTrackingServlet extends HttpServlet {
         String orderIdStr = request.getParameter("orderId");
         
         // Giả lập lấy userId từ session
-        com.webbandoan.model.Account account = (com.webbandoan.model.Account) request.getSession().getAttribute("loggedUser");
+        com.webbandoan.model.User account = (com.webbandoan.model.User) request.getSession().getAttribute("loggedUser");
         long userId = account != null ? account.getId() : 1L; // Fallback for test
         
         if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
