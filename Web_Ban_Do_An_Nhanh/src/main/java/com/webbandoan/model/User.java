@@ -21,7 +21,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    // Parameterized Constructor
+    // Parameterized Constructor (with ID and createdAt)
     public User(int id, String username, String email, String phone, String password, String fullname, Timestamp createdAt) {
         this.id = id;
         this.username = username;
@@ -30,6 +30,15 @@ public class User implements Serializable {
         this.password = password;
         this.fullname = fullname;
         this.createdAt = createdAt;
+    }
+
+    // Parameterized Constructor (without ID and createdAt)
+    public User(String username, String email, String phone, String password, String fullname) {
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.fullname = fullname;
     }
 
     // Getters and Setters
