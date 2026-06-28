@@ -327,7 +327,7 @@
             .catch(e => console.error("Error fetching suggestions:", e));
     }
     
-    document.addEventListener("click", function(e) {
+    /* fix click outside */ document.addEventListener("click", function(e) {
         if (!e.target.closest(".header-search-form")) {
             const box = document.getElementById("suggestionBox");
             if(box) box.style.display = "none";
@@ -336,4 +336,4 @@
 </script>
 </body>
 </html>
-<!-- commit 19 -->
+<!-- commit 21 -->
