@@ -20,7 +20,6 @@
             min-height: 100vh;
             padding-top: 80px;
         }
-        
         .sidebar {
             background: var(--bg-secondary);
             border-right: 1px solid var(--border-glass);
@@ -86,7 +85,17 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+        .btn_export{
+            padding: 10px 20px;
+            background-color: #4f46e5;
+            color: #fff;
+            border: 2px solid #4338ca;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
         .stat-icon {
             font-size: 2rem;
             color: var(--color-orange);
@@ -196,16 +205,19 @@
 
         <!-- Admin Content -->
         <main class="admin-content">
-            <div style="margin-bottom: 32px;">
-                <h2 style="font-size: 1.8rem; font-weight: 700;">Hôm nay thế nào rồi?</h2>
-                <p style="color: var(--text-secondary);">Thống kê hoạt động của cửa hàng BiteSync hôm nay.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+                <div>
+                    <h2 style="font-size: 1.8rem; font-weight: 700;">Hôm nay thế nào rồi?</h2>
+                    <p style="color: var(--text-secondary);">Thống kê hoạt động của cửa hàng BiteSync hôm nay.</p>
+                </div>
+                <button class="btn_export">Xuất hoá đơn</button>
             </div>
-            
+
             <!-- Quick Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-info">
-                        <p>Doanh Thu</p>
+                        <p>Tổng Doanh Thu</p>
                         <h3>$1,248.50</h3>
                     </div>
                     <div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>
@@ -213,7 +225,7 @@
                 
                 <div class="stat-card">
                     <div class="stat-info">
-                        <p>Đơn Hàng Mới</p>
+                        <p>Tồn kho</p>
                         <h3>48</h3>
                     </div>
                     <div class="stat-icon"><i class="fa-solid fa-cart-shopping"></i></div>
@@ -240,7 +252,7 @@
             <div class="data-table-container">
                 <div class="table-header">
                     <h3 style="font-weight: 700;">Đơn Hàng Gần Đây</h3>
-                    <button class="btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">Xem tất cả</button>
+<%--                    <button class="btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">Xem tất cả</button>--%>
                 </div>
                 
                 <table class="admin-table">
