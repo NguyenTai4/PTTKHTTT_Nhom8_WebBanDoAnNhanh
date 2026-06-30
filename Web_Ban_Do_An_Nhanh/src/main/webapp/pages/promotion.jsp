@@ -134,7 +134,12 @@
     <img src="${v.voucherImage}" alt="${v.voucherName}" class="voucher-image"/>
     <div class="voucher-body">
       <h3 class="voucher-name">${v.voucherName}</h3>
-      <a href="#" class="voucher-detail-btn">Copy</a>
+      <p>${v.description}</p>
+      <a href="javascript:void(0)"
+         class="voucher-detail-btn"
+         onclick="copyVoucher('${v.voucherCode}')">
+        Copy
+      </a>
     </div>
   </div>
   </c:forEach>
@@ -296,5 +301,6 @@
     }
   });
 </script>
+<script src="${pageContext.request.contextPath}/static/js/Voucher.js"></script>
 </body>
 </html>

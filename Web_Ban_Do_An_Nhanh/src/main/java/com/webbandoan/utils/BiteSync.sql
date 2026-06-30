@@ -1,4 +1,5 @@
 -- 1. TẠO BẢNG DANH MỤC (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS categories;
 CREATE TABLE `categories` (
                               `id` int NOT NULL AUTO_INCREMENT,
                               `name` varchar(100) NOT NULL,
@@ -18,6 +19,7 @@ INSERT INTO `categories` VALUES
 
 
 -- 2. TẠO BẢNG NGƯỜI DÙNG (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS users;
 CREATE TABLE `users` (
                          `id` int NOT NULL AUTO_INCREMENT,
                          `username` varchar(50) NOT NULL,
@@ -32,6 +34,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 3. TẠO BẢNG MÓN ĂN (Phụ thuộc categories)
+DROP TABLE IF EXISTS foods;
 CREATE TABLE `foods` (
                          `id` int NOT NULL AUTO_INCREMENT,
                          `name` varchar(255) NOT NULL,
@@ -74,6 +77,7 @@ INSERT INTO `foods` VALUES
 
 
 -- 4. TẠO BẢNG GIỎ HÀNG (Phụ thuộc users)
+DROP TABLE IF EXISTS carts;
 CREATE TABLE `carts` (
                          `id` int NOT NULL AUTO_INCREMENT,
                          `user_id` int NOT NULL,
@@ -85,6 +89,7 @@ CREATE TABLE `carts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 5. TẠO BẢNG CHI TIẾT GIỎ HÀNG (Phụ thuộc carts và foods)
+DROP TABLE IF EXISTS cart_items;
 CREATE TABLE `cart_items` (
                               `id` int NOT NULL AUTO_INCREMENT,
                               `cart_id` int NOT NULL,
@@ -99,6 +104,8 @@ CREATE TABLE `cart_items` (
                               CONSTRAINT `fk_item_food` FOREIGN KEY (`food_id`) REFERENCES `foods` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 6. TẠO BẢNG KHUYẾN MÃI (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS vouchers;
 CREATE TABLE `vouchers`  (
                              `voucher_id` int NOT NULL AUTO_INCREMENT,
                              `voucher_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -115,3 +122,5 @@ INSERT INTO `vouchers` VALUES (3, 'DEAL30', 'Giảm 300K', 'https://res.cloudina
 INSERT INTO `vouchers` VALUES (4, 'VIP50', 'Giảm 500K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499618/500k_dis_ziiph9.png', 'Voucher ưu đãi lớn', 500000);
 INSERT INTO `vouchers` VALUES (5, 'FREESHIP15', 'Free ship', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499617/free_dis_eruegp.png', 'Giảm 15.000đ phí vận chuyển', 15000);
 
+
+SET FOREIGN_KEY_CHECKS = 1;
