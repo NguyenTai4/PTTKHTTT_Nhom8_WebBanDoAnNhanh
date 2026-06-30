@@ -98,3 +98,20 @@ CREATE TABLE `cart_items` (
                               CONSTRAINT `fk_item_cart` FOREIGN KEY (`cart_id`) REFERENCES `carts` (`id`) ON DELETE CASCADE,
                               CONSTRAINT `fk_item_food` FOREIGN KEY (`food_id`) REFERENCES `foods` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `vouchers`  (
+                             `voucher_id` int NOT NULL AUTO_INCREMENT,
+                             `voucher_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+                             `voucher_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+                             `voucher_image` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+                             `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
+                             `discount_amount` int NULL DEFAULT NULL,
+                             PRIMARY KEY (`voucher_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `vouchers` VALUES (1, 'NEW10', 'Giảm 100K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499588/100k_dis_dvuul8.png', 'Giảm 100.000đ cho mọi đơn hàng', 100000);
+INSERT INTO `vouchers` VALUES (2, 'SAVE20', 'Giảm 200K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499604/200k_dis_kk2a4q.png', 'Giảm 200.000đ cho mọi đơn hàng', 200000);
+INSERT INTO `vouchers` VALUES (3, 'DEAL30', 'Giảm 300K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499614/300k_dis_rhrtvt.png', 'Giảm 300.000đ toàn đơn', 300000);
+INSERT INTO `vouchers` VALUES (4, 'VIP50', 'Giảm 500K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499618/500k_dis_ziiph9.png', 'Voucher ưu đãi lớn', 500000);
+INSERT INTO `vouchers` VALUES (5, 'FREESHIP15', 'Free ship', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499617/free_dis_eruegp.png', 'Giảm 15.000đ phí vận chuyển', 15000);
+

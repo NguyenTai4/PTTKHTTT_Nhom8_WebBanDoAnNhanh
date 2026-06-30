@@ -67,6 +67,8 @@
             <li><a href="${pageContext.request.contextPath}/search">Thực Đơn</a></li>
             <li><a href="#about">Về Chúng Tôi</a></li>
             <li><a href="#contact">Liên Hệ</a></li>
+            <li><a href="${pageContext.request.contextPath}/promotion">Khuyến mãi</a></li>
+
         </ul>
 
         <div class="nav-actions" style="display: flex; align-items: center; gap: 15px;">
@@ -206,6 +208,7 @@
                     <li><a href="${pageContext.request.contextPath}/search">Thực Đơn</a></li>
                     <li><a href="#about">Về Chúng Tôi</a></li>
                     <li><a href="#contact">Liên Hệ</a></li>
+                    <li><a href="#promotion">Khuyến mãi</a></li>
                 </ul>
             </div>
 
