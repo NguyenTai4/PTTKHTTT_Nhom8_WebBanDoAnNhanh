@@ -48,6 +48,7 @@ public class PromotionDAO {
                 Voucher voucher = new Voucher();
 
                 voucher.setVoucherId(rs.getInt("voucher_id"));
+                voucher.setVoucherCode(rs.getString("voucher_code"));
                 voucher.setVoucherName(rs.getString("voucher_name"));
                 voucher.setDiscountAmount(rs.getInt("discount_amount"));
                 voucher.setVoucherImage(rs.getString("voucher_image"));

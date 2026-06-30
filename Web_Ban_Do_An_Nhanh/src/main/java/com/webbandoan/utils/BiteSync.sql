@@ -1,4 +1,5 @@
 -- 1. TẠO BẢNG DANH MỤC (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS categories;
 CREATE TABLE `categories` (
                               `id` int NOT NULL AUTO_INCREMENT,
                               `name` varchar(100) NOT NULL,
@@ -18,6 +19,7 @@ INSERT INTO `categories` VALUES
 
 
 -- 2. TẠO BẢNG NGƯỜI DÙNG (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS users;
 CREATE TABLE `users` (
                          `id` int NOT NULL AUTO_INCREMENT,
                          `username` varchar(50) NOT NULL,
@@ -32,6 +34,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 3. TẠO BẢNG MÓN ĂN (Phụ thuộc categories)
+DROP TABLE IF EXISTS foods;
 CREATE TABLE `foods` (
                          `id` int NOT NULL AUTO_INCREMENT,
                          `name` varchar(255) NOT NULL,
@@ -74,6 +77,7 @@ INSERT INTO `foods` VALUES
 
 
 -- 4. TẠO BẢNG GIỎ HÀNG (Phụ thuộc users)
+DROP TABLE IF EXISTS carts;
 CREATE TABLE `carts` (
                          `id` int NOT NULL AUTO_INCREMENT,
                          `user_id` int NOT NULL,
@@ -85,6 +89,7 @@ CREATE TABLE `carts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 5. TẠO BẢNG CHI TIẾT GIỎ HÀNG (Phụ thuộc carts và foods)
+DROP TABLE IF EXISTS cart_items;
 CREATE TABLE `cart_items` (
                               `id` int NOT NULL AUTO_INCREMENT,
                               `cart_id` int NOT NULL,
@@ -99,6 +104,8 @@ CREATE TABLE `cart_items` (
                               CONSTRAINT `fk_item_food` FOREIGN KEY (`food_id`) REFERENCES `foods` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 6. TẠO BẢNG KHUYẾN MÃI (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS vouchers;
 CREATE TABLE `vouchers`  (
                              `voucher_id` int NOT NULL AUTO_INCREMENT,
                              `voucher_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -115,3 +122,60 @@ INSERT INTO `vouchers` VALUES (3, 'DEAL30', 'Giảm 300K', 'https://res.cloudina
 INSERT INTO `vouchers` VALUES (4, 'VIP50', 'Giảm 500K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499618/500k_dis_ziiph9.png', 'Voucher ưu đãi lớn', 500000);
 INSERT INTO `vouchers` VALUES (5, 'FREESHIP15', 'Free ship', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499617/free_dis_eruegp.png', 'Giảm 15.000đ phí vận chuyển', 15000);
 
+-- 7. TẠO BẢNG ĐƠN HÀNG (Không phụ thuộc khóa ngoại)
+DROP TABLE IF EXISTS orders;
+CREATE TABLE `orders`  (
+                           `order_id` int NOT NULL AUTO_INCREMENT,
+                           `user_id` INT NOT NULL,
+                           `voucher_id` int NULL DEFAULT NULL,
+                           `status` enum('PENDING','WAITING_SIGNATURE','CERTIFICATE_INVALID','SIGNATURE_INVALID','TAMPERED','VERIFIED','DONE','CANCELLED') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'PENDING',
+                           `subtotal_amount` int NOT NULL DEFAULT 0,
+                           `discount_amount` int NOT NULL DEFAULT 0,
+                           `shipping_fee` DECIMAL(10,2) NOT NULL DEFAULT 0,
+                            `total_amount` DECIMAL(10,2) NOT NULL,
+                           `receiver_name` VARCHAR(100) NOT NULL,
+                           `receiver_phone` VARCHAR(20) NOT NULL,
+                           `delivery_address` VARCHAR(255) NOT NULL,
+                           `note` TEXT DEFAULT NULL,
+                           `payment_method` ENUM('COD','CARD') NOT NULL DEFAULT 'COD',
+                           `payment_status` ENUM('UNPAID','PAID') NOT NULL DEFAULT 'UNPAID',
+                           `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                           PRIMARY KEY (`order_id`),
+                           KEY `fk_orders_user` (`user_id`),
+                           KEY `fk_orders_voucher` (`voucher_id`),
+                           CONSTRAINT `fk_orders_user`
+                               FOREIGN KEY (`user_id`)
+                                   REFERENCES `users`(`id`)
+                                   ON DELETE CASCADE,
+                           CONSTRAINT `fk_orders_voucher`
+                               FOREIGN KEY (`voucher_id`)
+                                   REFERENCES `vouchers`(`voucher_id`)
+                                   ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `order_details`;
+CREATE TABLE `order_details` (
+                                 `order_detail_id` INT NOT NULL AUTO_INCREMENT,
+                                 `order_id` INT NOT NULL,
+                                 `food_id` INT NOT NULL,
+                                 `unit_price` DECIMAL(10,2) NOT NULL,
+                                 `quantity` INT NOT NULL DEFAULT 1,
+                                 PRIMARY KEY (`order_detail_id`),
+                                 KEY `fk_orderdetails_orders` (`order_id`),
+                                 KEY `fk_orderdetails_foods` (`food_id`),
+                                 CONSTRAINT `fk_orderdetails_orders`
+                                     FOREIGN KEY (`order_id`)
+                                         REFERENCES `orders` (`order_id`)
+                                         ON DELETE CASCADE
+                                         ON UPDATE CASCADE,
+
+                                 CONSTRAINT `fk_orderdetails_foods`
+                                     FOREIGN KEY (`food_id`)
+                                         REFERENCES `foods` (`id`)
+                                         ON DELETE CASCADE
+                                         ON UPDATE CASCADE
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 1;
