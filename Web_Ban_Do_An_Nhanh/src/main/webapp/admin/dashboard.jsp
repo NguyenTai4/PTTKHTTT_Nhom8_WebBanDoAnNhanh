@@ -210,7 +210,7 @@
                     <h2 style="font-size: 1.8rem; font-weight: 700;">Hôm nay thế nào rồi?</h2>
                     <p style="color: var(--text-secondary);">Thống kê hoạt động của cửa hàng BiteSync hôm nay.</p>
                 </div>
-                <button class="btn_export">Xuất hoá đơn</button>
+                <a href="${pageContext.request.contextPath}/export-excel" class="btn_export">Xuất báo cáo</a>
             </div>
 
             <!-- Quick Stats -->
