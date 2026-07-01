@@ -233,8 +233,8 @@
                 
                 <div class="stat-card">
                     <div class="stat-info">
-                        <p>Khách Hàng</p>
-                        <h3>320</h3>
+                        <p>Tổng số Khách Hàng</p>
+                        <h3>${empty dash.totalCustomers ? 0 : dash.totalCustomers}</h3>
                     </div>
                     <div class="stat-icon"><i class="fa-solid fa-user-group"></i></div>
                 </div>
