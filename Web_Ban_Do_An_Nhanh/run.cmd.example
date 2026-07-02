@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 set "MAVEN_DIR=%~dp0.maven"
 set "MAVEN_ZIP=%~dp0maven.zip"
 set "MAVEN_BIN=%MAVEN_DIR%\apache-maven-3.9.6\bin\mvn.cmd"
