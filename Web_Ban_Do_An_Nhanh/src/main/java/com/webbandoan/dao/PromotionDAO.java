@@ -13,7 +13,7 @@ public class PromotionDAO {
         }
         String query = "SELECT * FROM promotions WHERE code = ? AND is_active = 1";
         try (Connection conn = DBContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+                PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, code.trim().toUpperCase());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
