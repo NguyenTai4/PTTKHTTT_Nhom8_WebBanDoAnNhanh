@@ -122,5 +122,40 @@ INSERT INTO `vouchers` VALUES (3, 'DEAL30', 'Giảm 300K', 'https://res.cloudina
 INSERT INTO `vouchers` VALUES (4, 'VIP50', 'Giảm 500K', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499618/500k_dis_ziiph9.png', 'Voucher ưu đãi lớn', 500000);
 INSERT INTO `vouchers` VALUES (5, 'FREESHIP15', 'Free ship', 'https://res.cloudinary.com/dijswwhab/image/upload/v1767499617/free_dis_eruegp.png', 'Giảm 15.000đ phí vận chuyển', 15000);
 
+-- 7. TẠO BẢNG ĐƠN HÀNG (Phụ thuộc users)
+DROP TABLE IF EXISTS orders;
+CREATE TABLE `orders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `fullname` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `payment_method` varchar(50) NOT NULL,
+  `payment_status` varchar(50) NOT NULL,
+  `total_price` decimal(10, 2) NOT NULL,
+  `promo_code` varchar(50) DEFAULT NULL,
+  `discount_amount` decimal(10, 2) DEFAULT 0.00,
+  `shipping_fee` decimal(10, 2) DEFAULT 0.00,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_order_user` (`user_id`),
+  CONSTRAINT `fk_order_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 8. TẠO BẢNG CHI TIẾT ĐƠN HÀNG (Phụ thuộc orders và foods)
+DROP TABLE IF EXISTS order_items;
+CREATE TABLE `order_items` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_id` int NOT NULL,
+  `food_id` int NOT NULL,
+  `quantity` int NOT NULL DEFAULT 1,
+  `price` decimal(10, 2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_item_order` (`order_id`),
+  KEY `fk_item_food_order` (`food_id`),
+  CONSTRAINT `fk_item_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_item_food_order` FOREIGN KEY (`food_id`) REFERENCES `foods` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

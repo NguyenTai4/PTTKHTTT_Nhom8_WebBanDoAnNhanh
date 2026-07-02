@@ -21,13 +21,21 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "CheckoutController", urlPatterns = {"/checkout", "/checkout/apply-promo", "/checkout/confirm-payment"})
+@WebServlet(name = "CheckoutController", urlPatterns = {
+    "/checkout", 
+    "/checkout/apply-promo", 
+    "/checkout/confirm-payment",
+    "/checkout/paypal-gateway",
+    "/checkout/paypal-success",
+    "/checkout/paypal-cancel"
+})
 public class CheckoutController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final CartDAO cartDAO = new CartDAO();
     private final FoodDAO foodDAO = new FoodDAO();
     private final OrderDAO orderDAO = new OrderDAO();
     private final PromotionDAO promotionDAO = new PromotionDAO();
+    private final com.webbandoan.utils.PaypalService paypalService = new com.webbandoan.utils.PaypalService();
     private static final double SHIPPING_FEE = 1.50; // Shipping fee in dollars
 
     @Override
@@ -43,13 +51,59 @@ public class CheckoutController extends HttpServlet {
             return;
         }
 
+        if (path.equals("/checkout/paypal-gateway")) {
+            request.getRequestDispatcher("/pages/paypal_gateway.jsp").forward(request, response);
+            return;
+        }
+
+        if (path.equals("/checkout/paypal-cancel")) {
+            String orderIdStr = request.getParameter("orderId");
+            if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
+                try {
+                    int orderId = Integer.parseInt(orderIdStr);
+                    orderDAO.cancelSpecificOrderAndReleaseStock(orderId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            session.setAttribute("error", "Thanh toán bằng PayPal đã bị hủy. Đơn hàng của bạn đã được hủy và tồn kho đã được khôi phục.");
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
+        if (path.equals("/checkout/paypal-success")) {
+            String token = request.getParameter("token");
+            String orderIdStr = request.getParameter("orderId");
+            
+            if (token != null && !token.trim().isEmpty()) {
+                boolean captured = paypalService.capturePaypalOrder(token);
+                if (captured && orderIdStr != null) {
+                    try {
+                        int orderId = Integer.parseInt(orderIdStr);
+                        try (java.sql.Connection conn = DBContext.getConnection();
+                             java.sql.PreparedStatement ps = conn.prepareStatement("UPDATE orders SET payment_status = 'Đã thanh toán' WHERE id = ?")) {
+                            ps.setInt(1, orderId);
+                            ps.executeUpdate();
+                        }
+                        response.sendRedirect(request.getContextPath() + "/pages/success-online.jsp?orderId=" + orderIdStr);
+                        return;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            session.setAttribute("error", "Lỗi hoặc giao dịch PayPal chưa được hoàn tất!");
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
         if (path.equals("/checkout/confirm-payment")) {
             String orderIdStr = request.getParameter("orderId");
             if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
                 try {
                     int orderId = Integer.parseInt(orderIdStr);
                     try (java.sql.Connection conn = DBContext.getConnection();
-                         java.sql.PreparedStatement ps = conn.prepareStatement("UPDATE orders SET payment_status = 'Đã thanh toán' WHERE id = ?")) {
+                          java.sql.PreparedStatement ps = conn.prepareStatement("UPDATE orders SET payment_status = 'Đã thanh toán' WHERE id = ?")) {
                         ps.setInt(1, orderId);
                         ps.executeUpdate();
                     }
@@ -110,6 +164,24 @@ public class CheckoutController extends HttpServlet {
 
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
+            return;
+        }
+
+        if (path.equals("/checkout/paypal-success")) {
+            String orderIdStr = request.getParameter("orderId");
+            if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
+                try {
+                    int orderId = Integer.parseInt(orderIdStr);
+                    try (java.sql.Connection conn = DBContext.getConnection();
+                         java.sql.PreparedStatement ps = conn.prepareStatement("UPDATE orders SET payment_status = 'Đã thanh toán' WHERE id = ?")) {
+                        ps.setInt(1, orderId);
+                        ps.executeUpdate();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            response.sendRedirect(request.getContextPath() + "/pages/success-online.jsp?orderId=" + orderIdStr);
             return;
         }
 
@@ -209,7 +281,7 @@ public class CheckoutController extends HttpServlet {
             order.setDiscountAmount(discountAmount);
             order.setTotalPrice(totalPrice);
 
-            if (payment.equals("bank")) {
+            if (payment.equals("bank") || payment.equals("paypal")) {
                 order.setPaymentStatus("Chờ thanh toán"); // Paypal / Online Bank transfer status
             } else {
                 order.setPaymentStatus("Chờ giao hàng"); // COD default status
@@ -222,9 +294,25 @@ public class CheckoutController extends HttpServlet {
                 // Reset cart quantity in session
                 session.setAttribute("cartSize", 0);
 
-                if (payment.equals("bank")) {
-                    // Redirect to simulated Paypal checkout page
-                    response.sendRedirect(request.getContextPath() + "/pages/payment.jsp?orderId=" + orderId + "&total=" + totalPrice);
+                if (payment.equals("bank") || payment.equals("paypal")) {
+                    // Try to create official PayPal payment session
+                    String scheme = request.getScheme();
+                    String serverName = request.getServerName();
+                    int serverPort = request.getServerPort();
+                    String contextPath = request.getContextPath();
+                    String baseUrl = scheme + "://" + serverName + ":" + serverPort + contextPath;
+
+                    String returnUrl = baseUrl + "/checkout/paypal-success";
+                    String cancelUrl = baseUrl + "/checkout/paypal-cancel";
+
+                    String approvalUrl = paypalService.createPaypalOrder(orderId, totalPrice, returnUrl, cancelUrl);
+
+                    if (approvalUrl != null && !approvalUrl.trim().isEmpty()) {
+                        response.sendRedirect(approvalUrl);
+                    } else {
+                        // Fallback to internal simulator
+                        response.sendRedirect(request.getContextPath() + "/checkout/paypal-gateway?orderId=" + orderId + "&total=" + totalPrice);
+                    }
                 } else {
                     // Redirect to order success page
                     response.sendRedirect(request.getContextPath() + "/pages/success.jsp?orderId=" + orderId);
