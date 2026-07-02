@@ -1,0 +1,112 @@
+package com.webbandoan.utils;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+/**
+ * Template utility class to manage database connections.
+ * Copy this file to "DBContext.java" and fill in your local database configuration.
+ * "DBContext.java" is ignored by git to protect credentials.
+ */
+public class DBContext {
+    
+    // Database connection details - Customize locally in DBContext.java
+    private static final String HOST = "localhost";
+    private static final String PORT = "3306";
+    private static final String DATABASE_NAME = "web_ban_do_an_nhanh";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "YOUR_DATABASE_PASSWORD_HERE"; // Add your MySQL password here
+
+    /**
+     * Obtains a connection to the MySQL database.
+     * @return Connection object
+     * @throws ClassNotFoundException if the JDBC Driver is not found
+     * @throws SQLException if a database access error occurs
+     */
+    public static Connection getConnection() throws ClassNotFoundException, SQLException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        
+        String url = String.format("jdbc:mysql://%s:%s/%s?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8", 
+                HOST, PORT, DATABASE_NAME);
+        
+        return DriverManager.getConnection(url, USERNAME, PASSWORD);
+    }
+    
+    /**
+     * Quick connection test helper and database migration.
+     */
+    public static void main(String[] args) {
+        try {
+            Connection conn = getConnection();
+            if (conn != null) {
+                System.out.println("Database connection established successfully!");
+                
+                try (java.sql.Statement stmt = conn.createStatement()) {
+                    // 1. Alter users table for activation
+                    try {
+                        stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_activated TINYINT DEFAULT 1");
+                        System.out.println("Database migration (users.is_activated added) executed successfully!");
+                    } catch (SQLException e) {
+                        if (e.getErrorCode() != 1060 && !e.getMessage().contains("Duplicate column")) throw e;
+                    }
+
+                    // 2. Alter foods table for stock
+                    try {
+                        stmt.executeUpdate("ALTER TABLE foods ADD COLUMN stock INT NOT NULL DEFAULT 20");
+                        System.out.println("Database migration (foods.stock added) executed successfully!");
+                    } catch (SQLException e) {
+                        if (e.getErrorCode() != 1060 && !e.getMessage().contains("Duplicate column")) throw e;
+                    }
+
+                    // 3. Create promotions table
+                    stmt.executeUpdate("CREATE TABLE IF NOT EXISTS promotions (" +
+                            "code VARCHAR(50) PRIMARY KEY, " +
+                            "discount_percent INT NOT NULL, " +
+                            "is_active TINYINT DEFAULT 1" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    // Insert dummy promotions
+                    stmt.executeUpdate("INSERT IGNORE INTO promotions (code, discount_percent) VALUES " +
+                            "('BITESYNC10', 10), ('BITESYNC20', 20)");
+
+                    // 4. Create orders table
+                    stmt.executeUpdate("CREATE TABLE IF NOT EXISTS orders (" +
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "user_id INT NOT NULL, " +
+                            "fullname VARCHAR(100) NOT NULL, " +
+                            "phone VARCHAR(20) NOT NULL, " +
+                            "address TEXT NOT NULL, " +
+                            "notes TEXT, " +
+                            "payment_method VARCHAR(50) NOT NULL, " +
+                            "payment_status VARCHAR(50) NOT NULL DEFAULT 'Chờ thanh toán', " +
+                            "total_price DECIMAL(10, 2) NOT NULL, " +
+                            "promo_code VARCHAR(50) DEFAULT NULL, " +
+                            "discount_amount DECIMAL(10, 2) DEFAULT 0.00, " +
+                            "shipping_fee DECIMAL(10, 2) DEFAULT 2.00, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                            "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " +
+                            "FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    // 5. Create order_items table
+                    stmt.executeUpdate("CREATE TABLE IF NOT EXISTS order_items (" +
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "order_id INT NOT NULL, " +
+                            "food_id INT NOT NULL, " +
+                            "quantity INT NOT NULL, " +
+                            "price DECIMAL(10, 2) NOT NULL, " +
+                            "FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE, " +
+                            "FOREIGN KEY (food_id) REFERENCES foods (id) ON DELETE CASCADE" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    System.out.println("Database migration (checkout tables) executed successfully!");
+                }
+                conn.close();
+            }
+        } catch (Exception e) {
+            System.err.println("Database connection failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
