@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -171,6 +172,9 @@
             font-weight: 700;
             font-size: 1rem;
             text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
         }
         
         @media (max-width: 992px) {
@@ -197,27 +201,49 @@
             </ul>
             
             <div class="nav-actions">
-                <a href="${pageContext.request.contextPath}/pages/login.jsp" class="btn-primary">Đăng Nhập</a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.loggedUser}">
+                        <div class="user-logged-info" style="display: flex; align-items: center; gap: 12px; background: rgba(255, 94, 54, 0.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255, 94, 54, 0.2);">
+                            <span style="color: var(--text-primary); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-circle-user" style="color: var(--color-orange); font-size: 1.2rem;"></i>
+                                Hi, ${sessionScope.loggedUser.fullname}
+                            </span>
+                            <a href="${pageContext.request.contextPath}/logout" title="Đăng xuất" style="color: var(--text-muted); display: flex; align-items: center;">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </a>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/pages/login.jsp" class="btn-primary">Đăng Nhập</a>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </header>
 
     <!-- Checkout Layout -->
     <div class="container checkout-wrapper">
-        <div class="checkout-grid">
-            <!-- Left: Checkout Details Form -->
-            <div class="checkout-form-panel">
-                <h2 class="checkout-title">Thông Tin Giao Hàng</h2>
-                
-                <form action="${pageContext.request.contextPath}/home" method="POST">
+        
+        <% if (request.getAttribute("error") != null) { %>
+            <div style="color: var(--color-red); background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); padding: 12px 16px; border-radius: var(--radius-md); text-align: center; margin-bottom: 24px; font-weight: 500;">
+                <i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("error") %>
+            </div>
+        <% } %>
+
+        <form action="${pageContext.request.contextPath}/checkout" method="POST" id="checkout-form">
+            <div class="checkout-grid">
+                <!-- Left: Checkout Details Form -->
+                <div class="checkout-form-panel">
+                    <h2 class="checkout-title">Thông Tin Giao Hàng</h2>
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="fullname">Họ và tên người nhận</label>
-                            <input type="text" id="fullname" name="fullname" class="form-input" placeholder="Nhập họ và tên" required>
+                            <input type="text" id="fullname" name="fullname" class="form-input" placeholder="Nhập họ và tên" value="${sessionScope.loggedUser.fullname}" required>
                         </div>
                         <div class="form-group">
                             <label for="phone">Số điện thoại liên hệ</label>
-                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="Nhập số điện thoại" required>
+                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="Nhập số điện thoại" value="${sessionScope.loggedUser.phone}" required>
                         </div>
                     </div>
                     
@@ -245,41 +271,60 @@
                         <label class="payment-option">
                             <input type="radio" name="payment" value="bank">
                             <div class="payment-info">
-                                <span class="payment-title">Chuyển khoản ngân hàng</span>
-                                <span class="payment-desc">Thanh toán qua quét mã QR MoMo/ZaloPay hoặc chuyển khoản ngân hàng.</span>
+                                <span class="payment-title">Chuyển khoản ngân hàng (Paypal)</span>
+                                <span class="payment-desc">Thanh toán qua quét mã QR hoặc cổng Paypal giả lập trực tuyến.</span>
                             </div>
                         </label>
                     </div>
-                </form>
-            </div>
-            
-            <!-- Right: Summary Panel -->
-            <div class="summary-panel">
-                <h3 class="summary-title">Đơn Hàng Của Bạn</h3>
-                <div class="summary-row">
-                    <span>Double Cheese Burger x 1</span>
-                    <span>$5.99</span>
-                </div>
-                <div class="summary-row">
-                    <span>Strawberry Milkshake x 2</span>
-                    <span>$5.98</span>
-                </div>
-                <div class="summary-row" style="border-top: 1px solid var(--border-glass); padding-top: 16px; margin-top: 16px;">
-                    <span>Tạm tính</span>
-                    <span>$11.97</span>
-                </div>
-                <div class="summary-row">
-                    <span>Phí giao hàng</span>
-                    <span>$1.50</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Tổng thanh toán</span>
-                    <span>$13.47</span>
                 </div>
                 
-                <button type="submit" class="btn-primary btn-order" onclick="alert('Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.'); window.location.href='${pageContext.request.contextPath}/home';">Đặt Hàng Ngay</button>
+                <!-- Right: Summary Panel -->
+                <div class="summary-panel">
+                    <h3 class="summary-title">Đơn Hàng Của Bạn</h3>
+                    
+                    <c:forEach var="item" items="${cartItems}">
+                        <div class="summary-row">
+                            <span>${item.food.name} x ${item.quantity}</span>
+                            <span>$${String.format("%.2f", item.food.price * item.quantity)}</span>
+                        </div>
+                    </c:forEach>
+                    
+                    <div class="summary-row" style="border-top: 1px solid var(--border-glass); padding-top: 16px; margin-top: 16px;">
+                        <span>Tạm tính</span>
+                        <span>$${String.format("%.2f", subTotal)}</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Phí giao hàng</span>
+                        <span>$${String.format("%.2f", shippingFee)}</span>
+                    </div>
+
+                    <!-- Live Discount Row -->
+                    <div class="summary-row" id="discount-row" style="display: none; color: #2ecc71;">
+                        <span>Giảm giá</span>
+                        <span id="discount-val">-$0.00</span>
+                    </div>
+                    
+                    <!-- Coupon Input Box -->
+                    <div style="margin: 20px 0; border-top: 1px solid var(--border-glass); padding-top: 16px;">
+                        <label style="display:block; font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px; font-weight: 500;">Mã giảm giá (Coupon Code)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="promo-code-input" class="form-input" placeholder="Mã giảm giá (ví dụ: BITESYNC10)" style="padding: 8px 12px; font-size: 0.9rem;">
+                            <input type="hidden" name="promo_code" id="applied-promo-code" value="">
+                            <button type="button" class="btn-secondary" id="apply-promo-btn" style="padding: 8px 16px; font-size: 0.9rem; border-radius: var(--radius-md); border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); font-weight:600; cursor:pointer; color: var(--text-primary);">Áp dụng</button>
+                        </div>
+                        <div id="promo-message" style="font-size:0.8rem; margin-top:6px; font-weight:500;"></div>
+                    </div>
+                    
+                    <div class="summary-row total">
+                        <span>Tổng thanh toán</span>
+                        <span id="total-price-val">$${String.format("%.2f", totalPrice)}</span>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary btn-order">Đặt Hàng Ngay</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Footer -->
@@ -290,6 +335,51 @@
             </div>
         </div>
     </footer>
+
+    <!-- Ajax Script for Promo Code -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("apply-promo-btn").addEventListener("click", function() {
+                var code = document.getElementById("promo-code-input").value;
+                if (!code || code.trim() === "") return;
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "${pageContext.request.contextPath}/checkout/apply-promo", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        var res = JSON.parse(xhr.responseText);
+                        var msgEl = document.getElementById("promo-message");
+                        if (res.valid) {
+                            msgEl.style.color = "#2ecc71";
+                            msgEl.innerHTML = "<i class='fa-solid fa-circle-check'></i> " + res.message;
+                            
+                            // Calculate values dynamically
+                            var subTotal = parseFloat("${subTotal}");
+                            var discountPercent = res.discountPercent;
+                            var discountAmount = subTotal * (discountPercent / 100.0);
+                            var shippingFee = parseFloat("${shippingFee}");
+                            var newTotal = subTotal - discountAmount + shippingFee;
+                            
+                            document.getElementById("discount-row").style.display = "flex";
+                            document.getElementById("discount-val").innerText = "-$" + discountAmount.toFixed(2);
+                            document.getElementById("total-price-val").innerText = "$" + newTotal.toFixed(2);
+                            document.getElementById("applied-promo-code").value = code;
+                        } else {
+                            msgEl.style.color = "var(--color-red)";
+                            msgEl.innerHTML = "<i class='fa-solid fa-circle-exclamation'></i> " + res.message;
+                            
+                            // Reset values
+                            document.getElementById("discount-row").style.display = "none";
+                            document.getElementById("total-price-val").innerText = "$" + parseFloat("${totalPrice}").toFixed(2);
+                            document.getElementById("applied-promo-code").value = "";
+                        }
+                    }
+                };
+                xhr.send("code=" + encodeURIComponent(code));
+            });
+        });
+    </script>
 
 </body>
 </html>

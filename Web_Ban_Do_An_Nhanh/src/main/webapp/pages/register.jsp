@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -11,7 +12,8 @@
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         /* Reusing matching auth styles */
         .auth-container {
@@ -23,7 +25,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .auth-card {
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
@@ -37,29 +39,29 @@
             z-index: 10;
             position: relative;
         }
-        
+
         .auth-header {
             text-align: center;
             margin-bottom: 24px;
         }
-        
+
         .auth-header .logo {
             display: inline-flex;
             margin-bottom: 12px;
             font-size: 2rem;
         }
-        
+
         .auth-header h2 {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
         }
-        
+
         .form-group {
             margin-bottom: 16px;
             position: relative;
         }
-        
+
         .form-group label {
             display: block;
             font-size: 0.85rem;
@@ -67,11 +69,11 @@
             margin-bottom: 6px;
             font-weight: 500;
         }
-        
+
         .input-wrapper {
             position: relative;
         }
-        
+
         .input-wrapper i {
             position: absolute;
             left: 16px;
@@ -80,7 +82,7 @@
             color: var(--text-muted);
             font-size: 0.95rem;
         }
-        
+
         .form-input {
             width: 100%;
             background: rgba(10, 10, 15, 0.5);
@@ -92,13 +94,13 @@
             font-size: 0.95rem;
             transition: var(--transition-fast);
         }
-        
+
         .form-input:focus {
             outline: none;
             border-color: var(--color-orange);
             box-shadow: 0 0 10px rgba(255, 94, 54, 0.2);
         }
-        
+
         .btn-auth {
             width: 100%;
             padding: 14px;
@@ -108,23 +110,23 @@
             margin-top: 16px;
             margin-bottom: 20px;
         }
-        
+
         .auth-footer {
             text-align: center;
             font-size: 0.9rem;
             color: var(--text-secondary);
         }
-        
+
         .auth-footer a {
             color: var(--color-orange);
             text-decoration: none;
             font-weight: 600;
         }
-        
+
         .auth-footer a:hover {
             text-decoration: underline;
         }
-        
+
         .back-home {
             position: absolute;
             top: 24px;
@@ -139,7 +141,7 @@
             transition: var(--transition-fast);
             z-index: 10;
         }
-        
+
         .back-home:hover {
             color: var(--text-primary);
         }
@@ -163,8 +165,21 @@
                 </a>
                 <h2>Tạo tài khoản của bạn</h2>
             </div>
+            <% 
+               String errorMsg = null;
+               if (request.getAttribute("error") != null) {
+                   errorMsg = (String) request.getAttribute("error");
+               } else if (request.getAttribute("errorMessage") != null) {
+                   errorMsg = (String) request.getAttribute("errorMessage");
+               }
+               if (errorMsg != null) { 
+            %>
+                <div style="color: var(--color-red); text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> <%= errorMsg %>
+                </div>
+            <% } %>
             
-            <form action="${pageContext.request.contextPath}/pages/login.jsp" method="POST">
+            <form action="${pageContext.request.contextPath}/register" method="POST">
                 <div class="form-group">
                     <label for="fullname">Họ và Tên</label>
                     <div class="input-wrapper">

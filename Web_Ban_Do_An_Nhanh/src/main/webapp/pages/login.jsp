@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -191,8 +192,37 @@
                 </a>
                 <h2>Chào mừng bạn trở lại!</h2>
             </div>
-            
-            <form action="${pageContext.request.contextPath}/home" method="POST">
+            <% 
+               String errorMsg = null;
+               if (request.getAttribute("error") != null) {
+                   errorMsg = (String) request.getAttribute("error");
+               } else if (request.getAttribute("errorMessage") != null) {
+                   errorMsg = (String) request.getAttribute("errorMessage");
+               }
+               if (errorMsg != null) { 
+            %>
+                <div style="color: var(--color-red); text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> <%= errorMsg %>
+                </div>
+            <% } %>
+
+            <% 
+               String successMsg = null;
+               if (request.getAttribute("success") != null) {
+                   successMsg = (String) request.getAttribute("success");
+               } else if (request.getAttribute("successMessage") != null) {
+                   successMsg = (String) request.getAttribute("successMessage");
+               } else if (session.getAttribute("success") != null) {
+                   successMsg = (String) session.getAttribute("success");
+                   session.removeAttribute("success");
+               }
+               if (successMsg != null) { 
+            %>
+                <div style="color: #2ecc71; text-align: center; margin-bottom: 16px; font-weight: 500; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-check"></i> <%= successMsg %>
+                </div>
+            <% } %>
+            <form action="${pageContext.request.contextPath}/login" method="POST">
                 <div class="form-group">
                     <label for="username">Tên đăng nhập / Email</label>
                     <div class="input-wrapper">
@@ -213,10 +243,23 @@
                     <label class="checkbox-container">
                         <input type="checkbox" name="remember"> Nhớ mật khẩu
                     </label>
-                    <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                    <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-link">Quên mật khẩu?</a>
                 </div>
-                
+
                 <button type="submit" class="btn-primary btn-auth">Đăng Nhập</button>
+
+                <div style="text-align: center; margin: 15px 0; color: var(--text-secondary); font-size: 0.9rem;">
+                    <span>HOẶC</span>
+                </div>
+
+                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile&redirect_uri=http://localhost:8080${pageContext.request.contextPath}/login-google&response_type=code&client_id=797549044266-n1h5cl113p3s5pjgm9krg4e1343o16lc.apps.googleusercontent.com"
+                   class="btn-secondary"
+                   style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: var(--text-primary); transition: var(--transition-fast);"
+                   onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 18px; height: 18px;">
+                    Đăng nhập bằng Google
+                </a>
             </form>
             
             <div class="auth-footer">
