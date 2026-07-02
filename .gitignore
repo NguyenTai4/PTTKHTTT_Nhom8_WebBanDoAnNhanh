@@ -1,1 +1,42 @@
-﻿Web_Ban_Do_An_Nhanh/target
+# Maven build outputs
+**/target/
+**/*.war
+**/*.ear
+**/*.zip
+**/*.tar.gz
+**/*.rar
+
+# Local Maven binaries download folder
+**/.maven/
+
+# IDE configurations
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+.factorypath
+**/nbproject/
+**/nbactions.xml
+**/nb-configuration.xml
+
+# Operating system files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Database scripts and dumps
+**/*.sql
+
+# BiteSync Debug files
+**/otp_debug.txt
+
+# Local execution scripts containing environment credentials
+**/run.cmd
+
+# Database connection configurations (ignored to prevent local conflicts and leaks)
+**/DBContext.java
+

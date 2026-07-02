@@ -17,18 +17,17 @@ public class OrderDAO {
     // 9.3 queryOrders(userId)
     public List<Order> queryOrders(long userId) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
-        
+        String sql = "SELECT id, user_id, fullname AS receive_name, phone AS phone_number, address AS shipping_address, payment_method, payment_status AS order_status, total_price AS total_amount, total_price AS final_amount, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC";
+
         try (Connection conn = DBContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setLong(1, userId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Order(
                         rs.getLong("id"),
                         rs.getLong("user_id"),
-                        // Fallback check if needed by DB schema changes, but keeping exactly my original code for UC9
                         rs.getString("receive_name"),
                         rs.getString("phone_number"),
                         rs.getString("shipping_address"),
@@ -36,13 +35,12 @@ public class OrderDAO {
                         rs.getString("order_status"),
                         rs.getDouble("total_amount"),
                         rs.getDouble("final_amount"),
-                        rs.getTimestamp("created_at")
-                ));
+                        rs.getTimestamp("created_at")));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         // 9.4 return orderList
         return list;
     }
@@ -50,9 +48,9 @@ public class OrderDAO {
     // 9.9. queryOrderDetails(orderId)
     public Order queryOrder(String orderId) {
         Order order = null;
-        String sql = "SELECT * FROM orders WHERE id = ?";
+        String sql = "SELECT id, user_id, fullname AS receive_name, phone AS phone_number, address AS shipping_address, payment_method, payment_status AS order_status, total_price AS total_amount, total_price AS final_amount, created_at FROM orders WHERE id = ?";
         try (Connection conn = DBContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, Long.parseLong(orderId));
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -66,8 +64,7 @@ public class OrderDAO {
                         rs.getString("order_status"),
                         rs.getDouble("total_amount"),
                         rs.getDouble("final_amount"),
-                        rs.getTimestamp("created_at")
-                );
+                        rs.getTimestamp("created_at"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,12 +74,13 @@ public class OrderDAO {
     }
 
     /**
-     * Checks if the user has any unpaid bank/paypal orders in 'Chờ thanh toán' status.
+     * Checks if the user has any unpaid bank/paypal orders in 'Chờ thanh toán'
+     * status.
      */
     public boolean checkUnpaidOrder(int userId) {
         String query = "SELECT COUNT(*) FROM orders WHERE user_id = ? AND payment_method = 'bank' AND payment_status = 'Chờ thanh toán'";
         try (Connection conn = DBContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+                PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -97,7 +95,8 @@ public class OrderDAO {
     }
 
     /**
-     * Cancels any unpaid bank/paypal orders for the user and releases (restores) their stock.
+     * Cancels any unpaid bank/paypal orders for the user and releases (restores)
+     * their stock.
      */
     public boolean cancelOldOrderAndReleaseStock(int userId) {
         Connection conn = null;
@@ -128,8 +127,8 @@ public class OrderDAO {
             String releaseStockQuery = "UPDATE foods SET stock = stock + ? WHERE id = ?";
 
             try (PreparedStatement psCancel = conn.prepareStatement(cancelOrderQuery);
-                 PreparedStatement psGetItems = conn.prepareStatement(getItemsQuery);
-                 PreparedStatement psRelease = conn.prepareStatement(releaseStockQuery)) {
+                    PreparedStatement psGetItems = conn.prepareStatement(getItemsQuery);
+                    PreparedStatement psRelease = conn.prepareStatement(releaseStockQuery)) {
 
                 for (int orderId : unpaidOrderIds) {
                     // Update order status
@@ -153,7 +152,9 @@ public class OrderDAO {
             }
 
             conn.commit(); // Commit Transaction
-            System.out.println("[BiteSync OrderDAO] Successfully cancelled old unpaid orders and released stock for user ID: " + userId);
+            System.out.println(
+                    "[BiteSync OrderDAO] Successfully cancelled old unpaid orders and released stock for user ID: "
+                            + userId);
             return true;
         } catch (Exception e) {
             System.err.println("Error in OrderDAO.cancelOldOrderAndReleaseStock: " + e.getMessage());
@@ -178,7 +179,8 @@ public class OrderDAO {
     }
 
     /**
-     * Creates a new order, saves order items, updates inventory, and clears user's cart.
+     * Creates a new order, saves order items, updates inventory, and clears user's
+     * cart.
      * Everything is run under a single database transaction.
      */
     public int createOrder(Order order, List<CartItem> cartItems) {
@@ -188,7 +190,8 @@ public class OrderDAO {
             conn.setAutoCommit(false); // Start Transaction
 
             // 1. Insert into orders table
-            String insertOrderQuery = "INSERT INTO orders (user_id, fullname, phone, address, notes, payment_method, payment_status, total_price, promo_code, discount_amount, shipping_fee) " +
+            String insertOrderQuery = "INSERT INTO orders (user_id, fullname, phone, address, notes, payment_method, payment_status, total_price, promo_code, discount_amount, shipping_fee) "
+                    +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             int orderId = -1;
             try (PreparedStatement ps = conn.prepareStatement(insertOrderQuery, Statement.RETURN_GENERATED_KEYS)) {
@@ -221,7 +224,7 @@ public class OrderDAO {
             String deductStockQuery = "UPDATE foods SET stock = stock - ? WHERE id = ?";
 
             try (PreparedStatement psItem = conn.prepareStatement(insertItemQuery);
-                 PreparedStatement psDeduct = conn.prepareStatement(deductStockQuery)) {
+                    PreparedStatement psDeduct = conn.prepareStatement(deductStockQuery)) {
 
                 for (CartItem item : cartItems) {
                     // Save item
@@ -268,5 +271,83 @@ public class OrderDAO {
             }
         }
         return -1;
+    }
+
+    /**
+     * Cancels a specific unpaid order and releases (restores) its items stock.
+     */
+    public boolean cancelSpecificOrderAndReleaseStock(int orderId) {
+        Connection conn = null;
+        try {
+            conn = DBContext.getConnection();
+            conn.setAutoCommit(false); // Start Transaction
+
+            // Check if order exists and is in 'Chờ thanh toán' status
+            String checkQuery = "SELECT id FROM orders WHERE id = ? AND payment_status = 'Chờ thanh toán'";
+            boolean canCancel = false;
+            try (PreparedStatement ps = conn.prepareStatement(checkQuery)) {
+                ps.setInt(1, orderId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        canCancel = true;
+                    }
+                }
+            }
+
+            if (!canCancel) {
+                conn.commit();
+                return true; // Already processed or not found
+            }
+
+            // 1. Cancel the specific order
+            String cancelOrderQuery = "UPDATE orders SET payment_status = 'Đã hủy' WHERE id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(cancelOrderQuery)) {
+                ps.setInt(1, orderId);
+                ps.executeUpdate();
+            }
+
+            // 2. Release/Restore stock for order items
+            String getItemsQuery = "SELECT food_id, quantity FROM order_items WHERE order_id = ?";
+            String releaseStockQuery = "UPDATE foods SET stock = stock + ? WHERE id = ?";
+
+            try (PreparedStatement psGetItems = conn.prepareStatement(getItemsQuery);
+                 PreparedStatement psRelease = conn.prepareStatement(releaseStockQuery)) {
+                psGetItems.setInt(1, orderId);
+                try (ResultSet rsItems = psGetItems.executeQuery()) {
+                    while (rsItems.next()) {
+                        int foodId = rsItems.getInt("food_id");
+                        int quantity = rsItems.getInt("quantity");
+
+                        // Restore stock
+                        psRelease.setInt(1, quantity);
+                        psRelease.setInt(2, foodId);
+                        psRelease.executeUpdate();
+                    }
+                }
+            }
+
+            conn.commit(); // Commit Transaction
+            System.out.println("[BiteSync OrderDAO] Successfully cancelled order ID: " + orderId + " and released stock.");
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error in OrderDAO.cancelSpecificOrderAndReleaseStock: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return false;
     }
 }

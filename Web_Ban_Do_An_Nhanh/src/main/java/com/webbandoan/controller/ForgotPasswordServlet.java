@@ -125,8 +125,11 @@ public class ForgotPasswordServlet extends HttpServlet {
             }
 
             String enteredOtp = request.getParameter("otp");
+            if (enteredOtp != null) {
+                enteredOtp = enteredOtp.trim();
+            }
 
-            if (enteredOtp == null || enteredOtp.trim().isEmpty()) {
+            if (enteredOtp == null || enteredOtp.isEmpty()) {
                 request.setAttribute("error", "Vui lòng nhập mã OTP!");
                 request.getRequestDispatcher("/pages/verify-otp.jsp").forward(request, response);
                 return;
